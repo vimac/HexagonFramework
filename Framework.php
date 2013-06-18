@@ -3,6 +3,9 @@ namespace Hexagon;
 
 require 'Common.php';
 
+/**
+ * Application Enviroment Context
+ */
 final class Context {
     public static $frameworkPath = __DIR__;
     public static $nsPaths = ['Hexagon' => __DIR__];
