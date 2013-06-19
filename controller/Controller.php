@@ -11,12 +11,12 @@ class Controller{
     /**
      * @var HttpRequest
      */
-    public $request;
+    protected $request;
     
     /**
      * @var HttpResponse
      */
-    public $response;
+    protected $response;
     
     public function __construct(HttpRequest $req, HttpResponse $res) {
         $this->request = $req;

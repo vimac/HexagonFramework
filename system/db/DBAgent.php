@@ -4,6 +4,8 @@ namespace Hexagon\system\db;
 
 use \Closure;
 use \PDO;
+use \PDOException;
+use \PDOStatement;
 use Hexagon\system\log\Logging;
 
 /**
@@ -46,6 +48,11 @@ class DBAgent {
 	 * @var array
 	 */
 	private $argValue = [];
+	
+	/**
+     * @var number
+	 */
+	public $lastInsertId = NULL;
 
 	/**
 	 * @var PDO
@@ -89,12 +96,11 @@ class DBAgent {
 	/**
 	 * Execute update SQL
 	 * @param string $sql
-	 * @param array $args Arguments
 	 * @param boolean $clearField clear fields after execution
 	 * @throws DBAgentException
 	 * @return integer Affected lines
 	 */
-	public function executeUpdate($sql, $args = array(), $clearField = TRUE) {
+	public function executeUpdate($sql, $clearField = TRUE) {
 		self::logDebug('SQL: ' . $sql);
 		
 		$pdo = $this->getPDOInstance();
@@ -103,7 +109,7 @@ class DBAgent {
 		try {
 			$statement = $pdo->prepare($sql);
 			foreach ($this->argValue as $key => $val) {
-				$statement->bindParam($key+1, $val['val'], $val['type']);
+				$statement->bindParam($key + 1, $val['val'], $val['type']);
 			}
 			self::logDebug('Params: ' . json_encode($this->argValue));
 		} catch(PDOException $e) {
@@ -115,11 +121,7 @@ class DBAgent {
 		
 		if ($result) {
 			$lines = $statement->rowCount();
-			
-			if (count($args) > 0) {
-				$id = &$args[0];
-				$id = $pdo->lastInsertID();
-			}
+    		$this->lastInsertID = $pdo->lastInsertID();
 		} else {
 			throw new DBAgentException('SQL exec error, SQL: [' . $sql . '], arguments: [' . json_encode($this->argValue) . ']');
 		}
@@ -142,7 +144,7 @@ class DBAgent {
 	 * @param boolean $clearField clear fields after execution
 	 * @throws DBAgentException 
 	 */
-	public function query($sql, $callback, $args = NULL, $clearField = TRUE) {
+	public function queryWithCallback($sql, $callback, $args = NULL, $clearField = TRUE) {
 		
 		self::logDebug('SQL: ' . $sql);
 		
@@ -166,14 +168,14 @@ class DBAgent {
 		if ($result) {
 		    if ($callback instanceof Closure) {
 		        while ($line = $statement->fetch(PDO::FETCH_ASSOC)) {
-		            $r = $callback(&$line, &$args);
+		            $r = $callback($line, $args);
 		            if ($r === FALSE) {
 		                break;
 		            }
 		        }
 		    } elseif (is_array($callback)) {
 				while ($line = $statement->fetch(PDO::FETCH_ASSOC)) {
-					$r = call_user_func_array($callback, array(&$line, &$args));
+					$r = call_user_func_array($callback, array($line, $args));
 					if ($r === FALSE) {
 						break;
 					}
@@ -201,7 +203,7 @@ class DBAgent {
 	 * @throws DBAgentException
 	 * @return array Result set
 	 */
-	public function executeQuery($sql, $clearField = TRUE) {
+	public function query($sql, $clearField = TRUE) {
 		self::logDebug('SQL: ' . $sql);
 		
 		$pdo = $this->getPDOInstance();
@@ -232,6 +234,16 @@ class DBAgent {
 		return $rs;
 	}
 	
+	/**
+     * Execute SQL statement and return the first line
+	 * @param string $sql
+	 * @param boolean $clearField clear fields after execution
+	 * @throws DBAgentException
+	 * @return array Result set
+	 */
+	public function queryOne($sql, $clearField = TRUE) {
+	    return current($this->query($sql, $clearField));
+	}
 		
 	/**
 	 * Add update field
@@ -289,6 +301,16 @@ class DBAgent {
 		return substr($sb, 3);
 	}
 	
+	public function addStatementArgs($data) {
+	    foreach ($data as $d) {
+	        if (is_array($d) && count($d) === 2) {
+	            $this->argValue[] = ['val' => $d[0], 'type' => $d[1]];
+	        } else {
+	            $this->argValue[] = ['val' => $d, 'type' => self::PARAM_STR];
+	        }
+	    }
+	}
+	
 	/**
 	 * Add prepared statement argument
 	 * @param mixed $val
@@ -312,5 +334,5 @@ class DBAgent {
 	}
 }
 
-class DBAgentException extends Exception{
+class DBAgentException extends \Exception{
 }

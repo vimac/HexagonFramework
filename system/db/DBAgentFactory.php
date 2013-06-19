@@ -18,10 +18,9 @@ class DBAgentFactory {
     public static function getDBAgent($name = 'default') {
         $params = Context::$appConfig->getDBConfig($name);
         $keys = array_keys(self::$agents);
-        if (in_array($name, $keys)) {
-            return self::$agents[$name];
-        } else {
+        if (!in_array($name, $keys)) {
             self::$agents[$name] = new DBAgent($params);
         }
+        return self::$agents[$name];
     }
 }
