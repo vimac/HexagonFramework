@@ -96,6 +96,11 @@ class Router {
             $uri = $config->uriDefault;
         }
         
+        $uriParts = explode('/', $uri);
+        if (count($uriParts) < 3) {
+            $uri = dirname($config->uriDefault) . '/' . array_pop($uriParts);
+        }
+        
         if (!empty($config->uriSuffix)) {
             $suffix = substr($uri, -strlen($config->uriSuffix));
             if ($suffix === $config->uriSuffix) {

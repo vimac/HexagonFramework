@@ -4,27 +4,30 @@ namespace Hexagon\widget;
 
 use Hexagon\Context;
 use Hexagon\system\log\Logging;
+use Hexagon\system\http\HttpResponse;
 
 abstract class Widget {
     
     use Logging;
     
     /**
+     * @param array
      * @return array
      */
-    public abstract function execute();
+    public abstract function execute($userData = NULL);
     
     /**
      * load widget and its default template
      * @param array $userData
      * @param Widget $instance for reuse
      */
-    public static function load($userData, Widget $instance = NULL) {
+    public static function load($userData = NULL, Widget $instance = NULL) {
         $className = get_called_class();
         $nameParts = explode('\\', $className);
         $name = array_slice($nameParts, 3);
+        array_push($name, lcfirst(array_pop($name)));
         $relativeTemplate = join('/', $name);
-        return self::loadWithTemplate($relativeTemplate, $instance);
+        return self::loadWithTemplate($userData, $relativeTemplate, $instance);
     }
     
     /**
@@ -33,7 +36,7 @@ abstract class Widget {
      * @param string $relativeTemplate relative widget template path
      * @param Widget $instance for reuse
      */
-    public static function loadWithTemplate($userData, $relativeTemplate, Widget $instance = NULL) {
+    public static function loadWithTemplate($userData = NULL, $relativeTemplate, Widget $instance = NULL) {
         $className = get_called_class();
         if (isset($instance)) {
             $w = $instance;
@@ -56,9 +59,12 @@ abstract class Widget {
                             'widget' . DIRECTORY_SEPARATOR .
                             $relativeTemplate . '.php';
         if (file_exists($absoluteTemplate)) {
-            $func = function($_widget, $_className, $_templatePath, $_userData) {
-                extract($_userData);
-                extract($_widget->execute());
+            $func = function(Widget $_widget, $_className, $_templatePath, $_userData) {
+                extract(HttpResponse::getCurrentResponse()->getValues());
+                $_result = $_widget->execute($_userData);
+                if (is_array($_result)) {
+                    extract($_result);
+                }
                 require $_templatePath;
             };
             $func($w, $className, $absoluteTemplate, $userData);

@@ -316,7 +316,7 @@ class DBAgent {
 	 * @param mixed $val
 	 * @param int $type
 	 */
-	public function addStatmentArg($val, $type = self::PARAM_STR) {
+	public function addStatementArg($val, $type = self::PARAM_STR) {
 		$arg = array(
 			'val' => $val,
 			'type' => $type
