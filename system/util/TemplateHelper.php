@@ -22,6 +22,10 @@ class TemplateHelper {
      * @var string
      */
     protected $panelRoot;
+
+    public $metajs = [];
+
+    public $metacss = [];
     
     /**
      * @var Helper
@@ -45,14 +49,14 @@ class TemplateHelper {
     }
     
     public function loadPanel($panelPath) {
-        $func = function(HttpRequest $_request, HttpResponse $_response, $_panelPath) {
+        $func = function(HttpRequest $_request, HttpResponse $_response, $_panelPath, $_helper) {
             extract($_response->getValues());
             require($this->panelRoot . DIRECTORY_SEPARATOR . $_panelPath . '.php');
         };
-        $func(HttpRequest::getCurrentRequest(), HttpResponse::getCurrentResponse(), $panelPath);
+        $func(HttpRequest::getCurrentRequest(), HttpResponse::getCurrentResponse(), $panelPath, $this);
     }
     
-    public function openForm($action, $method = 'POST', $attrs = []) {
+    public function formOpen($action, $method = 'POST', $attrs = []) {
         $text = '<form';
         $attrs['action'] = $action;
         $attrs['method'] = $method;
@@ -66,12 +70,20 @@ class TemplateHelper {
         echo $text;
     }
     
-    public function openFormMultipart($action, $method = 'POST', $attrs = []) {
+    public function formOpenMultipart($action, $method = 'POST', $attrs = []) {
         $attrs['enctype'] = 'multipart/form-data';
-        return $this->openForm($action, $method, $attrs);
+        return $this->formOpen($action, $method, $attrs);
     }
     
-    public function closeForm() {
+    public function formClose() {
         echo '</form>';
+    }
+    
+    public function addJS($file) {
+        $this->metajs[] = $file;
+    }
+    
+    public function addCSS($file) {
+        $this->metacss[] = $file;
     }
 }
