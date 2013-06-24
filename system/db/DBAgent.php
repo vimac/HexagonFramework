@@ -77,8 +77,8 @@ class DBAgent {
 	 */
 	public function getPDOInstance() {
 		if (class_exists('PDO', FALSE)) {
-			extract($this->parameters);
 			if ($this->pdo === NULL) {
+			    extract($this->parameters);
 				try{
 					$this->pdo = new PDO($dsn, $username, $password, $options);
 				} catch (PDOException $e) {
@@ -120,8 +120,8 @@ class DBAgent {
 		$result = $statement->execute();
 		
 		if ($result) {
-			$lines = $statement->rowCount();
-    		$this->lastInsertID = $pdo->lastInsertID();
+    		$this->lastInsertId = $pdo->lastInsertId();
+    		$lines = $statement->rowCount();
 		} else {
 			throw new DBAgentException('SQL exec error, SQL: [' . $sql . '], arguments: [' . json_encode($this->argValue) . ']');
 		}
@@ -331,6 +331,14 @@ class DBAgent {
 		$this->updateField = [];
 		$this->whereField = [];
 		$this->argValue = [];
+	}
+	
+	public function beginTransaction() {
+	    return $this->getPDOInstance()->beginTransaction();
+	}
+	
+	public function commit() {
+	    return $this->getPDOInstance()->commit();
 	}
 }
 
