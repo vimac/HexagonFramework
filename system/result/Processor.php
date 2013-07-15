@@ -129,12 +129,12 @@ class Processor {
     }
     
     protected function processJSON(Result $result) {
-        echo json_encode($result->data);
+        echo json_encode($this->mergeResult($result)->data);
     }
     
     protected function processXML(Result $result) {
         $xml = new \SimpleXMLElement('<root/>');
-        array_walk_recursive($result->data, [$xml, 'addChild']);
+        array_walk_recursive($this->mergeResult($result)->data, [$xml, 'addChild']);
         echo $xml->asXML();
     }
     
@@ -155,6 +155,11 @@ class Processor {
     protected function processGIF(Result $result) {
         imagegif($result->data);
         imagedestroy($result->data);
+    }
+    
+    private function mergeResult(Result $result) {
+        $result->data = array_merge($result->data, HttpResponse::getCurrentResponse()->getValues());
+        return $result;
     }
     
     public function processResult(Result $result) {

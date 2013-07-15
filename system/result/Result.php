@@ -142,8 +142,8 @@ class Result {
             $type = $request->getRestfulRequest();
         }
         if ($type === 'XML' || $type === 'JSON') {
-            $func = 'return' . $type;
-            return $this->$func($data, $lambda);
+            $func = 'gen' . $type . 'Result';
+            return self::$func($data, $lambda);
         } else {
             throw new UnknownResultType();
         }
