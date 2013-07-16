@@ -163,19 +163,22 @@ class Processor {
         return $result;
     }
     
-    private static function arrayToXML ($arrayData, &$xml){
-        foreach($arrayData as $key => $value) {
-            if(is_array($value)) {
-                if(!is_numeric($key)){
-                    $subnode = $xml->addChild("$key");
+    private static function arrayToXML($arrayData, &$xml, &$parent = NULL){
+        foreach ($arrayData as $key => $value) {
+            if (is_array($value)) {
+                if (is_numeric($key)) {
+                    $subnode = $xml->addChild('item');
+                    self::arrayToXML($value, $xml, $subnode);
+                } else {
+                    $subnode = $xml->addChild($key);
                     self::arrayToXML($value, $subnode);
                 }
-                else{
-                    self::arrayToXML($value, $xml);
+            } else {
+                if (isset($parent)) {
+                    $parent->addChild($key, $value);
+                } else {
+                    $xml->addChild($key, $value);
                 }
-            }
-            else {
-                $xml->addChild("$key","$value");
             }
         }
     }
