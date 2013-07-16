@@ -133,8 +133,9 @@ class Processor {
     }
     
     protected function processXML(Result $result) {
-        $xml = new \SimpleXMLElement('<root/>');
-        array_walk_recursive($this->mergeResult($result)->data, [$xml, 'addChild']);
+        $root = Context::$targetClassMethod ? Context::$targetClassMethod : 'root';
+        $xml = new \SimpleXMLElement('<' . $root . '/>');
+        self::arrayToXML($this->mergeResult($result)->data, $xml);
         echo $xml->asXML();
     }
     
@@ -162,8 +163,27 @@ class Processor {
         return $result;
     }
     
+    private static function arrayToXML ($arrayData, &$xml){
+        foreach($arrayData as $key => $value) {
+            if(is_array($value)) {
+                if(!is_numeric($key)){
+                    $subnode = $xml->addChild("$key");
+                    self::arrayToXML($value, $subnode);
+                }
+                else{
+                    self::arrayToXML($value, $xml);
+                }
+            }
+            else {
+                $xml->addChild("$key","$value");
+            }
+        }
+    }
+    
     public function processResult(Result $result) {
-        HttpResponse::getCurrentResponse()->setContentType($result->contentType);
+        $response = HttpResponse::getCurrentResponse();
+        $response->setContentType($result->contentType);
+        $response->outputHeaders();
         $func = 'process' . $result->type;
         return $this->$func($result);
     }

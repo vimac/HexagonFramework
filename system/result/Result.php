@@ -143,7 +143,8 @@ class Result {
         }
         if ($type === 'XML' || $type === 'JSON') {
             $func = 'gen' . $type . 'Result';
-            return self::$func($data, $lambda);
+            $contentType = constant('self::CONTENT_' . $type);
+            return self::$func($data, $contentType, $lambda);
         } else {
             throw new UnknownResultType();
         }

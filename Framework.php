@@ -16,6 +16,10 @@ final class Context {
     public static $uri = '';
     public static $developmentMode = FALSE;
     
+    public static $targetClassNamespace;
+    public static $targetClassName;
+    public static $targetClassMethod;
+    
     /**
      * @var \Hexagon\config\BaseConfig
      */
@@ -150,13 +154,17 @@ final class Framework {
 	     
 	    // check pre interceptor rule results
 	    if (!isset($interceptResult)) {
-	        $conResult = Dispatcher::getInstance()->invoke($uri);
+	        $dispatcher = Dispatcher::getInstance();
+	        $conResult = $dispatcher->invoke($uri);
+	        
+	        Context::$targetClassMethod = $dispatcher->method;
+	        Context::$targetClassName = $dispatcher->className;
+	        Context::$targetClassNamespace = $dispatcher->classNS;
+	        
 	        $interceptResult = Interceptor::getInstance()->commitPostRules();
 	    }
 	    
 	    $processor = Processor::getInstance();
-	    
-	    HttpResponse::getCurrentResponse()->outputHeaders();
 	    
 	    // check post interceptor rule results
 	    if (isset($interceptResult)) {
