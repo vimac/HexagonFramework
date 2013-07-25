@@ -52,33 +52,37 @@ class Dispatcher {
         
         if ($refCon->hasMethod($method)) {
             $refMethod = $refCon->getMethod($method);
-            $refParams = $refMethod->getParameters();
             
-            $params = [];
-            foreach ($refParams as $refParam) {
-                $paramName = $refParam->getName();
-                $paramPos = $refParam->getPosition();
-                
-                if (!$refParam->isOptional()) {
-                    if (!$request->hasParameter($paramName)) {
-                        throw new MissingParameter($paramName, $method, $classNS);
-                    }
-                    $params[$paramPos] = $request->getParameter($paramName);
-                } else {
-                    if ($request->hasParameter($paramName)) {
+            if ($refMethod->getModifiers() & \ReflectionMethod::IS_PUBLIC) {
+                $refParams = $refMethod->getParameters();
+                $params = [];
+                foreach ($refParams as $refParam) {
+                    $paramName = $refParam->getName();
+                    $paramPos = $refParam->getPosition();
+                    
+                    if (!$refParam->isOptional()) {
+                        if (!$request->hasParameter($paramName)) {
+                            throw new MissingParameter($paramName, $method, $classNS);
+                        }
                         $params[$paramPos] = $request->getParameter($paramName);
                     } else {
-                        $params[$paramPos] = $refParam->getDefaultValue();
+                        if ($request->hasParameter($paramName)) {
+                            $params[$paramPos] = $request->getParameter($paramName);
+                        } else {
+                            $params[$paramPos] = $refParam->getDefaultValue();
+                        }
                     }
                 }
-            }
-            
-            $instance = $refCon->newInstance($request, HttpResponse::getCurrentResponse());
-            $ret = $refMethod->invokeArgs($instance, $params);
-            if (is_null($ret)) {
-                return NULL;
+                
+                $instance = $refCon->newInstance($request, HttpResponse::getCurrentResponse());
+                $ret = $refMethod->invokeArgs($instance, $params);
+                if (is_null($ret)) {
+                    return NULL;
+                } else {
+                    return $ret;
+                }
             } else {
-                return $ret;
+                throw new MissingMethod($method, $classNS);
             }
         } else {
             throw new MissingMethod($method, $classNS);
