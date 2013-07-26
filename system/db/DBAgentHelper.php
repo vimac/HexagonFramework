@@ -9,7 +9,7 @@ trait DBAgentHelper {
      * @param string $name
      * @return DBAgent
      */
-    public static function getDBAgent($name = 'default') {
+    public static function _getDBAgent($name = 'default') {
         return DBAgentFactory::getDBAgent($name);
     }
     
