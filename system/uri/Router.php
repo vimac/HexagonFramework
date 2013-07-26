@@ -110,7 +110,7 @@ class Router {
             }
         }
         
-        $this->logDebug('URI: ' . $uri);
+        $this->_logDebug('URI: ' . $uri);
         
         return $uri;
     }

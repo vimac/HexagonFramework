@@ -82,7 +82,7 @@ class DBAgent {
 				try{
 					$this->pdo = new PDO($dsn, $username, $password, $options);
 				} catch (PDOException $e) {
-					self::logErr($e);
+					self::_logErr($e);
 					throw new DBAgentException('PDO Initalized Failed. ' . $e->getCode() . ' ' . $e->getMessage());
 				}
 			}
@@ -101,7 +101,7 @@ class DBAgent {
 	 * @return integer Affected lines
 	 */
 	public function executeUpdate($sql, $clearField = TRUE) {
-		self::logDebug('SQL: ' . $sql);
+		self::_logDebug('SQL: ' . $sql);
 		
 		$pdo = $this->getPDOInstance();
 		$lines = -1;
@@ -111,9 +111,9 @@ class DBAgent {
 			foreach ($this->argValue as $key => $val) {
 				$statement->bindParam($key + 1, $val['val'], $val['type']);
 			}
-			self::logDebug('Params: ' . json_encode($this->argValue));
+			self::_logDebug('Params: ' . json_encode($this->argValue));
 		} catch(PDOException $e) {
-			self::logErr($e);
+			self::_logErr($e);
 			throw new DBAgentException('SQL prepared error ' . $e->getCode() . ' ' . $e->getMessage() . ', SQL: [' . $sql . ']');
 		}
 		
@@ -146,7 +146,7 @@ class DBAgent {
 	 */
 	public function queryWithCallback($sql, $callback, $args = NULL, $clearField = TRUE) {
 		
-		self::logDebug('SQL: ' . $sql);
+		self::_logDebug('SQL: ' . $sql);
 		
 		$pdo = $this->getPDOInstance();
 		$lines = -1;
@@ -157,9 +157,9 @@ class DBAgent {
 			foreach ($this->argValue as $key => $val) {
 				$statement->bindParam($key+1, $val['val'], $val['type']);
 			}
-			self::logDebug('Params: ' . json_encode($this->argValue));
+			self::_logDebug('Params: ' . json_encode($this->argValue));
 		} catch(PDOException $e) {
-			self::logErr($e);
+			self::_logErr($e);
 			throw new DBAgentException('SQL prepared error ' . $e->getCode() . ' ' . $e->getMessage() . ', SQL: [' . $sql . ']');
 		}
 
@@ -204,7 +204,7 @@ class DBAgent {
 	 * @return array Result set
 	 */
 	public function query($sql, $clearField = TRUE) {
-		self::logDebug('SQL: ' . $sql);
+		self::_logDebug('SQL: ' . $sql);
 		
 		$pdo = $this->getPDOInstance();
 		
@@ -213,9 +213,9 @@ class DBAgent {
 			foreach ($this->argValue as $key => $val) {
 				$statement->bindParam($key + 1, $val['val'], $val['type']);
 			}
-			self::logDebug('Params: ' . json_encode($this->argValue));
+			self::_logDebug('Params: ' . json_encode($this->argValue));
 		} catch (PDOException $e) {
-			self::logErr($e);
+			self::_logErr($e);
 			throw new DBAgentException('SQL prepared error ' . $e->getCode() . ' ' . $e->getMessage() . ', SQL: [' . $sql . ']');
 		}
 	

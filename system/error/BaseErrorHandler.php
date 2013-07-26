@@ -10,11 +10,11 @@ class BaseErrorHandler {
     use Logging;
     
     public static function handleError($errno, $errstr, $errfile, $errline, $errcontext) {
-        self::logErr(sprintf('CODE:[%d], MSG:[%s], FILE:[%s:%d]', $errno , $errstr , $errfile , $errline));
+        self::_logErr(sprintf('CODE:[%d], MSG:[%s], FILE:[%s:%d]', $errno , $errstr , $errfile , $errline));
     }
     
     public static function handleException(\Exception $ex) {
-        self::logErr($ex);
+        self::_logErr($ex);
     }
     
 }
