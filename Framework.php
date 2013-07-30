@@ -174,7 +174,7 @@ final class Framework {
 	            $processor->processResult($conResult);
 	        } else {
 	            //default page result
-	            $processor->processResult(Result::genPageResult([]));
+	            $processor->processResult(new Result());
 	        }
 	    }
 	    

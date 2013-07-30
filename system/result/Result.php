@@ -40,7 +40,7 @@ class Result {
      * @param function $lambda Do some special things by this function, usually use in custom return type
      * @return Result 
      */
-    public function __construct($type, $data, $meta, $contentType = self::CONTENT_HTML, $lambda = NULL) {
+    public function __construct($type = NULL, $data = NULL, $meta = NULL, $contentType = self::CONTENT_HTML, $lambda = NULL) {
         $this->type = isset($type) ? $type : 'PAGE';
         $this->data = isset($data) ? $data : [];
         $this->meta = $meta;
