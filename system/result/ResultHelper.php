@@ -135,8 +135,8 @@ trait ResultHelper {
      * this result is nothing, usually use in a cli task
      * @return Result
      */
-    protected static function _genNoneResult() {
-        return new Result(Result::TYPE_NONE, NULL, NULL, NULL, NULL);
+    protected static function _genNoneResult($contentType = Result::TYPE_HTML) {
+        return new Result(Result::TYPE_NONE, NULL, NULL, $contentType, NULL);
     }
     
     /**

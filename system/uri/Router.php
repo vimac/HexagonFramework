@@ -101,12 +101,16 @@ class Router {
             $uri = dirname($config->uriDefault) . '/' . array_pop($uriParts);
         }
         
-        if (!empty($config->uriSuffix)) {
-            $suffix = substr($uri, -strlen($config->uriSuffix));
-            if ($suffix === $config->uriSuffix) {
-                $uri = substr($uri, 0, -strlen($config->uriSuffix));
-            } else {
-                throw new InvalidURI($uri);
+        if (substr($uri, -1) === '/') {
+            $uri = $uri . 'index' . $config->uriSuffix;
+        } else {
+            if (!empty($config->uriSuffix)) {
+                $suffix = substr($uri, -strlen($config->uriSuffix));
+                if ($suffix === $config->uriSuffix) {
+                    $uri = substr($uri, 0, -strlen($config->uriSuffix));
+                } else {
+                    throw new InvalidURI($uri);
+                }
             }
         }
         

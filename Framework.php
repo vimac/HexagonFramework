@@ -1,4 +1,11 @@
 <?php
+/**
+ * Hexagon Framework
+ * BSD License
+ * 
+ * @author mac
+ */
+
 namespace Hexagon;
 
 require 'Common.php';
@@ -32,10 +39,31 @@ final class Context {
         $path = self::$nsPaths[$base];
         $clsFile = $path . DIRECTORY_SEPARATOR . $name . '.php';
         
+        if (substr($name, -10) === 'Controller') {
+            $isController = TRUE;
+        } else {
+            $isController = FALSE;
+        }
+        
         if (file_exists($clsFile)) {
             require $clsFile;
         } else {
-            trigger_error('Class [' . $cls . '] not found, try include file: [' . $clsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
+            if ($isController) {
+                $lowName = strtolower(substr($name, 0, -10));
+                $clsNS = explode('/', $lowName);
+                $filename = ucfirst($clsNS[count($clsNS) - 1]);
+
+                $name = implode(DIRECTORY_SEPARATOR, $clsNS);
+                $dirClsFile = $path . DIRECTORY_SEPARATOR . $name . DIRECTORY_SEPARATOR . $filename . '.php';
+                
+                if (file_exists($dirClsFile)) {
+                    require $dirClsFile;
+                    return;
+                } else {
+                    trigger_error('Class [' . $cls . '] not found, try to include file: [' . $clsFile . ', ' . $dirClsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
+                }
+            }
+            trigger_error('Class [' . $cls . '] not found, try to include file: [' . $clsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
         }
     }
     

@@ -42,12 +42,13 @@ class Dispatcher {
         array_unshift($parts, Context::$appNS, 'app', 'controller');
         array_push($parts, $className);
         $classNS = join('\\', $parts);
-        
+
         $this->method = $method;
         $this->className = $className;
         $this->classNS = $classNS;
         
         $request = HttpRequest::getCurrentRequest();
+        
         $refCon = new \ReflectionClass($classNS);
         
         if ($refCon->hasMethod($method)) {
