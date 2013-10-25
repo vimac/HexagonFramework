@@ -29,238 +29,233 @@ class HttpRequest {
      * @var string
      */
     private $csrfTokenHash;
-	
-	/**
-	 * @var string
-	 */
-	protected $requestMethod;
-	
-	/**
-	 * @var string
-	 */
-	protected $userAgent;
-	
-	/**
-	 * @var string
-	 */
-	protected $referrer;
-	
-	/**
-	 * @var string
-	 */
-	protected $hostName;
-	
-	/**
-	 * @var string
-	 */
-	protected $requestURI;
-	
-	/**
-	 * @var string
-	 */
-	protected $remoteIP;
-	
-	/**
-	 * @var string
-	 */
-	protected $serverIP;
-	
-	/**
-	 * @var string
-	 */
-	protected $serverPort;
-	
-	/**
-	 * @var array
-	 */
-	protected $cookies;
-	
-	/**
-	 * @var string
-	 */
-	protected $queryString;
-	
-	/**
-	 * @var string
-	 */
-	protected $parameters = array();
-	
-	/**
-	 * @var string
-	 */
-	protected $scriptName;
-	
-	
-	/**
-	 * @var string
-	 */
-	protected $requestAction;
-	
-	/**
+    
+    /**
      * @var string
-	 */
-	protected $pathInfo;
-	
-	/**
-	 * @var string
-	 */
-	protected $accept;
-	
-	/**
-	 * @var string
-	 */
-	protected $acceptEncoding;
-	
-	/**
-	 * @var string
-	 */
-	protected $acceptLanguage;
-	
-	/**
+     */
+    protected $requestMethod;
+    
+    /**
+     * @var string
+     */
+    protected $userAgent;
+    
+    /**
+     * @var string
+     */
+    protected $referrer;
+    
+    /**
+     * @var string
+     */
+    protected $hostName;
+    
+    /**
+     * @var string
+     */
+    protected $requestURI;
+    
+    /**
+     * @var string
+     */
+    protected $remoteIP;
+    
+    /**
+     * @var string
+     */
+    protected $serverIP;
+    
+    /**
+     * @var string
+     */
+    protected $serverPort;
+    
+    /**
+     * @var array
+     */
+    protected $cookies;
+    
+    /**
+     * @var string
+     */
+    protected $queryString;
+    
+    /**
+     * @var string
+     */
+    protected $parameters = array();
+    
+    /**
+     * @var string
+     */
+    protected $scriptName;
+    
+    
+    /**
+     * @var string
+     */
+    protected $requestAction;
+    
+    /**
+     * @var string
+     */
+    protected $pathInfo;
+    
+    /**
+     * @var string
+     */
+    protected $accept;
+    
+    /**
+     * @var string
+     */
+    protected $acceptEncoding;
+    
+    /**
+     * @var string
+     */
+    protected $acceptLanguage;
+    
+    /**
      * @var JSON | XML | NULL;
-	 */
-	protected $restfulRequest;
-	
-	/**
-	 * @var HttpRequest
-	 */
-	protected static $request = NULL;
-	
-	/**
-	 * @return HttpRequest
-	 */
-	public static function getCurrentRequest() {
-		if (self::$request == null) {
-			self::$request = new self();
-		}
-		return self::$request;
-	}
+     */
+    protected $restfulRequest;
+    
+    /**
+     * @var HttpRequest
+     */
+    protected static $request = NULL;
+    
+    /**
+     * @return HttpRequest
+     */
+    public static function getCurrentRequest() {
+        if (self::$request == null) {
+            self::$request = new self();
+        }
+        return self::$request;
+    }
 
     /**
      * @return HttpRequest
      */
     private function __construct() {
-    	$this->requestMethod = $_SERVER['REQUEST_METHOD'];
-		$this->userAgent = $_SERVER['HTTP_USER_AGENT'];
-		
-		if (array_key_exists('HTTP_REFERER',$_SERVER)) {
-			$this->referrer = $_SERVER['HTTP_REFERER'];
-		}
+        if (!HEXAGON_CLI_MODE) {
+            $this->requestMethod = $_SERVER['REQUEST_METHOD'];
+            $this->userAgent = $_SERVER['HTTP_USER_AGENT'];
+            $this->requestURI = $_SERVER['REQUEST_URI'];
+            $this->hostName = $_SERVER['HTTP_HOST'];
+            $this->remoteIP = $_SERVER['REMOTE_ADDR'];
+            $this->serverIP = $_SERVER['SERVER_ADDR'];
+            $this->serverPort = $_SERVER['SERVER_PORT'];
+            $this->queryString = $_SERVER['QUERY_STRING'];
+            $this->accept = $_SERVER['HTTP_ACCEPT'];
+        }
+        
+        if (array_key_exists('HTTP_REFERER',$_SERVER)) {
+            $this->referrer = $_SERVER['HTTP_REFERER'];
+        }
 
-		$this->requestURI = $_SERVER['REQUEST_URI'];
-		
-		$this->hostName = $_SERVER['HTTP_HOST'];
-		
-		$this->remoteIP = $_SERVER['REMOTE_ADDR'];
-		
-		$this->serverIP = $_SERVER['SERVER_ADDR'];
-		
-		$this->serverPort = $_SERVER['SERVER_PORT'];
-		
-		$this->cookies = $_COOKIE;
-		
-		$this->queryString = $_SERVER['QUERY_STRING'];
-		
-		$this->scriptName = $_SERVER['SCRIPT_NAME'];
-		
-		$this->accept = $_SERVER['HTTP_ACCEPT'];
-		
-		if (isset($_SERVER['HTTP_ACCEPT_ENCODING'])) {
-		    $this->acceptEncoding = $_SERVER['HTTP_ACCEPT_ENCODING'];
-		} else {
-		    $this->acceptEncoding = '';
-		}
-		if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-		    $this->acceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-		} else {
-		    $this->acceptLanguage = '';
-		}
-		
-		if (stripos($this->accept, 'json')) {
-		    $this->restfulRequest = 'JSON';
-		} else {
-		    $this->restfulRequest = 'XML';
-		}
-		
-		$config = Context::$appConfig;
-		if ($config->csrfProtection) {
-		    $this->csrfToken = $config->csrfTokenName;
-		}
-		$this->parameters = $_REQUEST;
-		
-		if (!empty($this->csrfToken) && isset($this->parameters[$this->csrfToken])) {
-		    $this->csrfTokenHash = $this->parameters[$this->csrfToken];
-		    unset($this->parameters[$this->csrfToken]);
-		}
-		
-		if (array_key_exists('PATH_INFO', $_SERVER)) {
-		    $this->pathInfo = $_SERVER['PATH_INFO'];
-		}
-		
-		$this->cipher = Security::getCipher();
+        $this->cookies = $_COOKIE;
+        
+        $this->scriptName = $_SERVER['SCRIPT_NAME'];
+        
+        if (isset($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+            $this->acceptEncoding = $_SERVER['HTTP_ACCEPT_ENCODING'];
+        } else {
+            $this->acceptEncoding = '';
+        }
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            $this->acceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+        } else {
+            $this->acceptLanguage = '';
+        }
+        
+        if (stripos($this->accept, 'json')) {
+            $this->restfulRequest = 'JSON';
+        } else {
+            $this->restfulRequest = 'XML';
+        }
+        
+        $config = Context::$appConfig;
+        if ($config->csrfProtection) {
+            $this->csrfToken = $config->csrfTokenName;
+        }
+        $this->parameters = $_REQUEST;
+        
+        if (!empty($this->csrfToken) && isset($this->parameters[$this->csrfToken])) {
+            $this->csrfTokenHash = $this->parameters[$this->csrfToken];
+            unset($this->parameters[$this->csrfToken]);
+        }
+        
+        if (array_key_exists('PATH_INFO', $_SERVER)) {
+            $this->pathInfo = $_SERVER['PATH_INFO'];
+        }
+        
+        $this->cipher = Security::getCipher();
     }
 
     /**
      * @return string 
      */
-	public function getRequestMethod() {
-		return $this->requestMethod;
+    public function getRequestMethod() {
+        return $this->requestMethod;
     }
 
     /**
      * @return string
      */
-	public function getUserAgent() {
-		return $this->userAgent;
+    public function getUserAgent() {
+        return $this->userAgent;
     }
     
     /**
      * @return string
      */
     public function getReferrer() {
-		return $this->referrer;
+        return $this->referrer;
     }
 
     /**
      * @return string
      */
     public function getRequestURI() {
-		return $this->requestURI;
+        return $this->requestURI;
     }
 
     /**
      * @return string
      */
     public function getRemoteIP() {
-		return $this->remoteIP;
+        return $this->remoteIP;
     }
     
     /**
      * @return string
      */
     public function getServerIP() {
-    	return $this->serverIP;
+        return $this->serverIP;
     }
     
     /**
      * @return string
      */
     public function getServerPort() {
-    	return $this->serverPort;
+        return $this->serverPort;
     }
     
     /**
      * @return string
      */
-	public function getHostName() {
-		return $this->hostName;
+    public function getHostName() {
+        return $this->hostName;
     }
 
     /**
      * @return string
      */
     public function getScriptName() {
-		return $this->scriptName;
+        return $this->scriptName;
     }
     
     /**
@@ -270,15 +265,15 @@ class HttpRequest {
     public function getCookie($name) {
         $config = Context::$appConfig;
         if (array_key_exists($name, $this->cookies)) {
-    	    if ($config->cookieEncryption) {
-    	        if ($name === $this->csrf) {
-    	            return $this->cookies[$name];
-    	        } else {
-    	            return $this->cipher->decrypt($this->cookies[$name]);
-    	        }
-    	    } else {
-    	        return $this->cookies[$name];
-    	    }
+            if ($config->cookieEncryption) {
+                if ($name === $this->csrf) {
+                    return $this->cookies[$name];
+                } else {
+                    return $this->cipher->decrypt($this->cookies[$name]);
+                }
+            } else {
+                return $this->cookies[$name];
+            }
         } else {
             return NULL;
         }
@@ -309,7 +304,7 @@ class HttpRequest {
      * @return string
      */
     public function getQueryString() {
-		return $this->queryString;
+        return $this->queryString;
     }
     
     /**
@@ -325,18 +320,18 @@ class HttpRequest {
      * @return string
      */
     public function getParameter($name) {
-		if (array_key_exists($name, $this->parameters)) {
-			return $this->parameters[$name];
-    	}else{
-    		return null;
-    	}
+        if (array_key_exists($name, $this->parameters)) {
+            return $this->parameters[$name];
+        }else{
+            return null;
+        }
     }
     
     /**
      * @return array
      */
     public function getParameters() {
-    	return $this->parameters;
+        return $this->parameters;
     }
     
     /**
@@ -350,14 +345,14 @@ class HttpRequest {
      * @return string
      */
     public function getRequestAction() {
-    	return $this->requestAction;
+        return $this->requestAction;
     }
     
     /**
      * @param array $action
      */
     public function setRequestAction($action) {
-    	$this->requestAction = $action;
+        $this->requestAction = $action;
     }
     
     public function getAccept() {

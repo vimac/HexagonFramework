@@ -98,126 +98,130 @@ use Hexagon\system\security\Security;
 final class Framework {
     
     use Logging;
-	
-	/**
-	 * An instance of this class
-	 * @var Framework
-	 */
-	private static $f;
-	
-	/**
-	 * Singleton
-	 * @return Framework
-	 */
-	public static function getInstance() {
-		if (self::$f == null) {
-			self::$f = new self();
-		}
-		return self::$f;
-	}
-	
-	/**
-	 * initialize the application
-	 * @param string $appNS application root namespace name
-	 * @param string $appBasePath application root path
-	 * @param string $defConfig defined configclass fullname (must include the namespace), NULL for default
-	 */
-	public function initApp($appNS, $appBasePath, $defConfig = NULL) {
-	    Context::registerNS($appNS, $appBasePath);
-	    Context::$appNS = $appNS;
-	    Context::$appBasePath = $appBasePath;
-	    Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
-	    Context::$developmentMode = file_exists($appBasePath . DIRECTORY_SEPARATOR . 'dev.lock');
-	    
-	    if (isset($defConfig)) {
-	        $configClass = $defConfig;
-	    } else {
-	        if (Context::$developmentMode &&
-	        file_exists(
-	                $appBasePath . DIRECTORY_SEPARATOR . 'app' .
-	                DIRECTORY_SEPARATOR . 'config' .
-	                DIRECTORY_SEPARATOR . 'DevConfig.php')) {
-	            $configClass = $appNS . '\app\config\DevConfig';
-	        } else {
-	            $configClass = $appNS . '\app\config\Config';
-	        }
-	    }
-	    $config = $configClass::getInstance();
-	    Context::$appConfig = $config;
-	    
-	    define('HEXAGON_LOG_LEVEL', $config->logLevel);
-	    
-// 	    set_error_handler([$config->errorHandler, 'handleError']);
-// 	    set_exception_handler([$config->errorHandler, 'handleException']);
+    
+    /**
+     * An instance of this class
+     * @var Framework
+     */
+    private static $f;
+    
+    /**
+     * Singleton
+     * @return Framework
+     */
+    public static function getInstance() {
+        if (self::$f == null) {
+            self::$f = new self();
+        }
+        return self::$f;
+    }
+    
+    /**
+     * initialize the application
+     * @param string $appNS application root namespace name
+     * @param string $appBasePath application root path
+     * @param string $defConfig defined configclass fullname (must include the namespace), NULL for default
+     */
+    public function initApp($appNS, $appBasePath, $defConfig = NULL) {
+        Context::registerNS($appNS, $appBasePath);
+        Context::$appNS = $appNS;
+        Context::$appBasePath = $appBasePath;
+        Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
+        Context::$developmentMode = file_exists($appBasePath . DIRECTORY_SEPARATOR . 'dev.lock');
+        
+        if (isset($defConfig)) {
+            $configClass = $defConfig;
+        } else {
+            if (Context::$developmentMode &&
+            file_exists(
+                    $appBasePath . DIRECTORY_SEPARATOR . 'app' .
+                    DIRECTORY_SEPARATOR . 'config' .
+                    DIRECTORY_SEPARATOR . 'DevConfig.php')) {
+                $configClass = $appNS . '\app\config\DevConfig';
+            } else {
+                $configClass = $appNS . '\app\config\Config';
+            }
+        }
+        $config = $configClass::getInstance();
+        Context::$appConfig = $config;
+        
+        define('HEXAGON_LOG_LEVEL', $config->logLevel);
+        
+//         set_error_handler([$config->errorHandler, 'handleError']);
+//         set_exception_handler([$config->errorHandler, 'handleException']);
 
-	    self::_logDebug('Request for ' . Context::$appConfig->appName . ' start');
-	    
-	    return $this;
-	}
-	
-	/**
-	 * @param string $uri defined uri, usually used in cli or maintenance mode
-	 * @param bool $outputBuffer enable or disable output buffer
-	 * @return Framework
-	 */
-	public function run($uri = NULL, $outputBuffer = TRUE) {
-	    $config = Context::$appConfig;
-	    if ($config->csrfProtection) {
-	        Security::vertifyCSRFToken();
-	    }
-	    
-	    if (!$uri) {
-    	    $router = Router::getInstance();
-    	    $uri = $router->resolveURI();
-	    }
-	    Context::$uri = $uri;
+        self::_logDebug('Request for ' . Context::$appConfig->appName . ' start');
+        
+        return $this;
+    }
+    
+    /**
+     * @param string $uri defined uri, usually used in cli or maintenance mode
+     * @param bool $outputBuffer enable or disable output buffer
+     * @return Framework
+     */
+    public function run($uri = NULL, $outputBuffer = TRUE) {
+        $config = Context::$appConfig;
+        if ($config->csrfProtection) {
+            Security::vertifyCSRFToken();
+        }
+        
+        if (!$uri) {
+            $router = Router::getInstance();
+            $uri = $router->resolveURI();
+        }
+        Context::$uri = $uri;
 
-	    session_start();
-	    
-	    if ($outputBuffer) {
-	        ob_start();
-	    }
-	    
-	    $interceptResult = Interceptor::getInstance()->commitPreRules();
-	     
-	    // check pre interceptor rule results
-	    if (!isset($interceptResult)) {
-	        $dispatcher = Dispatcher::getInstance();
-	        $conResult = $dispatcher->invoke($uri);
-	        
-	        Context::$targetClassMethod = $dispatcher->method;
-	        Context::$targetClassName = $dispatcher->className;
-	        Context::$targetClassNamespace = $dispatcher->classNS;
-	        
-	        $interceptResult = Interceptor::getInstance()->commitPostRules();
-	    }
-	    
-	    $processor = Processor::getInstance();
-	    
-	    // check post interceptor rule results
-	    if (isset($interceptResult)) {
-	        $processor->processResult($interceptResult);
-	    } else {
-	        if ($conResult) {
-	            $processor->processResult($conResult);
-	        } else {
-	            //default page result
-	            $processor->processResult(new Result());
-	        }
-	    }
-	    
-	    if ($outputBuffer) {
-	        ob_flush();
-	    }
-	    
-	    return $this;
-	}
-	
-	private function __construct() {
-	    // do nothing
-	}
-	
-	public function __destruct() {
-	    self::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs' );
-	}
+        if (!HEXAGON_CLI_MODE) {
+            session_start();
+        }
+        
+        if ($outputBuffer) {
+            ob_start();
+        }
+        
+        $interceptResult = Interceptor::getInstance()->commitPreRules();
+        
+        // check pre interceptor rule results
+        if (!isset($interceptResult)) {
+            $dispatcher = Dispatcher::getInstance();
+            $conResult = $dispatcher->invoke($uri);
+            
+            Context::$targetClassMethod = $dispatcher->method;
+            Context::$targetClassName = $dispatcher->className;
+            Context::$targetClassNamespace = $dispatcher->classNS;
+            
+            $interceptResult = Interceptor::getInstance()->commitPostRules();
+        }
+        
+        $processor = Processor::getInstance();
+        
+        // check post interceptor rule results
+        if (isset($interceptResult)) {
+            $processor->processResult($interceptResult);
+        } else {
+            if ($conResult) {
+                $processor->processResult($conResult);
+            } else {
+                if (!HEXAGON_CLI_MODE) {
+                    //default page result
+                    $processor->processResult(new Result());
+                }
+            }
+        }
+        
+        if ($outputBuffer) {
+            ob_flush();
+        }
+        
+        return $this;
+    }
+    
+    private function __construct() {
+        // do nothing
+    }
+    
+    public function __destruct() {
+        self::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs' );
+    }
 }
