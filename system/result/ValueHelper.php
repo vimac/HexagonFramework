@@ -14,4 +14,8 @@ trait ValueHelper {
     protected function _getValues() {
         return $this->response->getValues();
     }
+    
+    protected function _clearValues() {
+        return $this->response->clearValues();
+    }
 }
