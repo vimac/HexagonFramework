@@ -149,7 +149,9 @@ class HttpRequest {
             $this->serverIP = $_SERVER['SERVER_ADDR'];
             $this->serverPort = $_SERVER['SERVER_PORT'];
             $this->queryString = $_SERVER['QUERY_STRING'];
-            $this->accept = $_SERVER['HTTP_ACCEPT'];
+            if (isset($_SERVER['HTTP_ACCEPT'])) {
+                $this->accept = $_SERVER['HTTP_ACCEPT'];
+            }
         }
         
         if (array_key_exists('HTTP_REFERER',$_SERVER)) {
