@@ -200,7 +200,7 @@ class Result {
      *                       303 - See Other <br />
      *                       307 - Temporary Redirect <br />
      */
-    public static function redirect($url, $code = 302) {
+    public static function redirect($uri, $code = 302) {
         header('Location: ' . $uri, TRUE, $code);
         return self::genNoneResult();
     }
