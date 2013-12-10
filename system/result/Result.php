@@ -44,8 +44,8 @@ class Result {
      * @return Result 
      */
     public function __construct($type, $data, $meta, $contentType = self::CONTENT_HTML, $lambda = NULL) {
-        $this->type = $type;
-        $this->data = $data;
+        $this->type = isset($type) ? $type : 'PAGE';
+        $this->data = isset($data) ? $data : [];
         $this->meta = $meta;
         
         if ($contentType) {
