@@ -31,11 +31,11 @@ final class Context {
         if (file_exists($clsFile)) {
             require $clsFile;
         } else {
-            trigger_error('Class [' . $cls . '] not found in paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
+            trigger_error('Class [' . $cls . '] not found, try include file: [' . $clsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
         }
     }
     
-    public static function registerNSPath($baseNS, $basePath) {
+    public static function registerNS($baseNS, $basePath) {
         self::$nsPaths[$baseNS] = $basePath;
         self::$nsNames[] = $baseNS;
     }
@@ -47,7 +47,7 @@ final class Context {
             $path = self::$nsPaths[$root] . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $ns);
             return $path;
         } else {
-            throw new Exception('Namespace [' . $root . '] not found');
+            throw new \Exception('Namespace [' . $root . '] not found');
         }
     }
 }
@@ -91,7 +91,7 @@ final class Framework {
 	 * @param string $defConfig defined configclass fullname (must include the namespace), NULL for default
 	 */
 	public function initApp($appNS, $appBasePath, $defConfig = NULL) {
-	    Context::registerNSPath($appNS, $appBasePath);
+	    Context::registerNS($appNS, $appBasePath);
 	    Context::$appNS = $appNS;
 	    Context::$appBasePath = $appBasePath;
 	    Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
@@ -117,7 +117,7 @@ final class Framework {
 	    
 // 	    set_error_handler([$config->errorHandler, 'handleError']);
 // 	    set_exception_handler([$config->errorHandler, 'handleException']);
-	    
+
 	    self::logDebug('Request for ' . Context::$appConfig->appName . ' start');
 	    
 	    return $this;
