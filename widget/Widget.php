@@ -35,6 +35,7 @@ abstract class Widget {
      * @param array $userData
      * @param string $relativeTemplate relative widget template path
      * @param Widget $instance for reuse
+     * @return Widget instance of Widget subclass
      */
     public static function loadWithTemplate($userData = NULL, $relativeTemplate, Widget $instance = NULL) {
         $className = get_called_class();
@@ -68,6 +69,8 @@ abstract class Widget {
                 require $_templatePath;
             };
             $func($w, $className, $absoluteTemplate, $userData);
+            
+            return $w;
         } else {
             throw new WidgetTemplateNotFound($className);
         }
