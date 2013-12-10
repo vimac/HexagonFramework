@@ -44,26 +44,31 @@ class Interceptor {
         $arrayName = $type . 'Rules';
         foreach ($this->$arrayName as $rule) {
             $re = $rule[0];
-            $cls = $rule[1];
+            $clses = $rule[1];
             if (preg_match($re, $uri) === 1) {
-                $reflectionClass = new \ReflectionClass($cls);
-                if ($reflectionClass->hasMethod($type)) {
-                    try {
-                        $instance = $reflectionClass->newInstance();
-                        $method = $reflectionClass->getMethod($type);
-                        $result = $method->invoke($instance);
-                        if (!is_null($result)) {
-                            if ($result instanceof Result) {
-                                return $result;
-                            } else {
-                                throw new WrongInterceptorRuleReturnType($cls);
+                if (is_string($clses)) {
+                    $clses = [$clses];
+                }
+                foreach ($clses as $cls) {
+                    $reflectionClass = new \ReflectionClass($cls);
+                    if ($reflectionClass->hasMethod($type)) {
+                        try {
+                            $instance = $reflectionClass->newInstance();
+                            $method = $reflectionClass->getMethod($type);
+                            $result = $method->invoke($instance);
+                            if (!is_null($result)) {
+                                if ($result instanceof Result) {
+                                    return $result;
+                                } else {
+                                    throw new WrongInterceptorRuleReturnType($cls);
+                                }
                             }
+                        } catch (BreakInterceptor $e) {
+                            break 2;
                         }
-                    } catch (BreakInterceptor $e) {
-                        break;
+                    } else {
+                        throw new MissingInterceptorRuleMethod($type, $cls);
                     }
-                } else {
-                    throw new MissingInterceptorRuleMethod($type, $cls);
                 }
             }
         }
