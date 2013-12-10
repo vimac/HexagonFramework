@@ -17,7 +17,7 @@ class Pagination{
     public $prevPage = NULL;
     public $firstPage = NULL;
     
-    public $pagenation;
+    public $pagination;
     
     /**
      * @param string $template
@@ -45,7 +45,7 @@ class Pagination{
         $totalPage = intval(ceil($totalRecord / $pageSize));
         $this->totalPage = $totalPage;
         
-        $pagenation = [];
+        $pagination = [];
         
         if ($totalPage > 0) {
             $left = ceil($display / 2);
@@ -54,12 +54,12 @@ class Pagination{
             for ($i = 0; $i < $left; $i++) {
                 $k = $currentPage - $i;
                 if ($k > 1) {
-                    $pagenation[$k] = str_replace('(page)', $k, $template);
+                    $pagination[$k] = str_replace('(page)', $k, $template);
                 } elseif ($k === 1) {
                     if ($firstPageUrl) {
-                        $pagenation[$k] = $firstPageUrl;
+                        $pagination[$k] = $firstPageUrl;
                     } else {
-                        $pagenation[$k] = str_replace('(page)', 1, $template);
+                        $pagination[$k] = str_replace('(page)', 1, $template);
                     }
                 } else {
                     break;
@@ -69,23 +69,23 @@ class Pagination{
             for ($i = 1; $i < $right; $i++) {
                 $k = $currentPage + $i;
                 if ($k <= $totalPage) {
-                    $pagenation[$k] = str_replace('(page)', $k, $template);
+                    $pagination[$k] = str_replace('(page)', $k, $template);
                 } else {
                     break;
                 }
             }
             
-            ksort($pagenation);
+            ksort($pagination);
             
-            if (array_key_exists($currentPage + 1, $pagenation)) {
-                $this->nextPage = $pagenation[$currentPage + 1];
+            if (array_key_exists($currentPage + 1, $pagination)) {
+                $this->nextPage = $pagination[$currentPage + 1];
             }
-            if (array_key_exists($currentPage - 1, $pagenation)) {
-                $this->prevPage = $pagenation[$currentPage - 1];
+            if (array_key_exists($currentPage - 1, $pagination)) {
+                $this->prevPage = $pagination[$currentPage - 1];
             }
             
-            if (array_key_exists(1, $pagenation)) {
-                $this->firstPage = $pagenation[1];
+            if (array_key_exists(1, $pagination)) {
+                $this->firstPage = $pagination[1];
             } else {
                 if ($firstPageUrl) {
                     $this->firstPage = $firstPageUrl;
@@ -94,8 +94,8 @@ class Pagination{
                 }
             }
             
-            if (array_key_exists($totalPage, $pagenation)) {
-                $this->lastPage = $pagenation[$totalPage];
+            if (array_key_exists($totalPage, $pagination)) {
+                $this->lastPage = $pagination[$totalPage];
             } else {
                 if ($totalPage === 1) {
                     $this->lastPage = $this->firstPage;
@@ -105,11 +105,15 @@ class Pagination{
             }
         }
         
-        $this->pagenation = $pagenation;
+        $this->pagination = $pagination;
     }
     
     public function getPagination () {
-        return $this->pagenation;
+        return $this->pagination;
+    }
+    
+    public function needPage () {
+        return $this->totalPage > 0;
     }
     
 }

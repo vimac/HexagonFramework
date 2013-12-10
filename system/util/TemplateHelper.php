@@ -7,14 +7,21 @@ use Hexagon\config\BaseConfig;
 use Hexagon\system\log\Logging;
 use Hexagon\system\security\Security;
 use Hexagon\system\security\cipher\Cipher;
+use Hexagon\system\http\HttpRequest;
+use Hexagon\system\http\HttpResponse;
 
 class TemplateHelper {
     use Logging;
     
     /**
-     * BaseConfig
+     * @var BaseConfig
      */
     protected $config;
+    
+    /**
+     * @var string
+     */
+    protected $panelRoot;
     
     /**
      * @var Helper
@@ -34,6 +41,15 @@ class TemplateHelper {
     
     protected function __construct() {
         $this->config = Context::$appConfig;
+        $this->panelRoot = Context::$appBasePath . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . 'panel';
+    }
+    
+    public function loadPanel($panelPath) {
+        $func = function(HttpRequest $_request, HttpResponse $_response, $_panelPath) {
+            extract($_response->getValues());
+            require($this->panelRoot . DIRECTORY_SEPARATOR . $_panelPath . '.php');
+        };
+        $func(HttpRequest::getCurrentRequest(), HttpResponse::getCurrentResponse(), $panelPath);
     }
     
     public function openForm($action, $method = 'POST', $attrs = []) {
@@ -44,7 +60,7 @@ class TemplateHelper {
             $text .= ' ' . $name . '="' . $attr . '"';
         }
         $text .= '>';
-        if ($this->config->csrfProtection) {
+        if ($this->config->csrfProtection && strcasecmp($method, 'POST') === 0) {
             $text .= '<div style="display:none"><input type="hidden" name="' . $this->config->csrfTokenName . '" value="' . Security::getCSRFTokenHash() . '" /></div>';
         }
         echo $text;
