@@ -178,7 +178,7 @@ class HttpRequest {
 		
 		if (stripos($this->accept, 'json')) {
 		    $this->restfulRequest = 'JSON';
-		} elseif (stripos($this->accept, 'xml')) {
+		} else {
 		    $this->restfulRequest = 'XML';
 		}
 		

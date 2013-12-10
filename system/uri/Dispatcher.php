@@ -10,6 +10,10 @@ use Hexagon\system\http\HttpResponse;
 class Dispatcher {
     use Logging;
     
+    public $method = null;
+    public $className = null;
+    public $classNS = null;
+    
     /**
      * @var Dispatcher
      */
@@ -38,6 +42,10 @@ class Dispatcher {
         array_unshift($parts, Context::$appNS, 'app', 'controller');
         array_push($parts, $className);
         $classNS = join('\\', $parts);
+        
+        $this->method = $method;
+        $this->className = $className;
+        $this->classNS = $classNS;
         
         $request = HttpRequest::getCurrentRequest();
         $refCon = new \ReflectionClass($classNS);
