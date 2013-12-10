@@ -5,9 +5,10 @@ use Hexagon\system\log\Logging;
 use Hexagon\system\http\HttpRequest;
 use Hexagon\system\http\HttpResponse;
 use Hexagon\system\result\ValueHelper;
+use Hexagon\system\result\ResultHelper;
 
 class Controller{
-    use Logging, ValueHelper;
+    use Logging, ValueHelper, ResultHelper;
     
     /**
      * @var HttpRequest

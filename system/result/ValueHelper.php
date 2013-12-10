@@ -3,15 +3,15 @@
 namespace Hexagon\system\result;
 
 trait ValueHelper {
-    protected function bindValue($key, $val) {
+    protected function _bindValue($key, $val) {
         $this->response->bindValue($key, $val);
     }
     
-    protected function getValue($key) {
+    protected function _getValue($key) {
         return $this->response->getValue($key);
     }
     
-    protected function getValues() {
+    protected function _getValues() {
         return $this->response->getValues();
     }
 }
