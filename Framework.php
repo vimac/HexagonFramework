@@ -139,6 +139,8 @@ final class Framework {
     	    $uri = $router->resolveURI();
 	    }
 	    Context::$uri = $uri;
+
+	    session_start();
 	    
 	    if ($outputBuffer) {
 	        ob_start();
