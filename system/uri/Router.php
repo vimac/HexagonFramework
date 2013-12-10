@@ -102,7 +102,7 @@ class Router {
         }
         
         if (substr($uri, -1) === '/') {
-            $uri = $uri . 'index' . $config->uriSuffix;
+            $uri = $uri . 'index';
         } else {
             if (!empty($config->uriSuffix)) {
                 $suffix = substr($uri, -strlen($config->uriSuffix));
