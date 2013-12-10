@@ -122,7 +122,7 @@ final class Framework {
 // 	    set_error_handler([$config->errorHandler, 'handleError']);
 // 	    set_exception_handler([$config->errorHandler, 'handleException']);
 
-	    self::logDebug('Request for ' . Context::$appConfig->appName . ' start');
+	    self::_logDebug('Request for ' . Context::$appConfig->appName . ' start');
 	    
 	    return $this;
 	}
@@ -190,6 +190,6 @@ final class Framework {
 	}
 	
 	public function __destruct() {
-	    self::logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs' );
+	    self::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs' );
 	}
 }

@@ -2,6 +2,8 @@
 
 namespace Hexagon\system\result;
 
+use Hexagon\system\http\HttpRequest;
+
 trait ResultHelper {
     
     /**
@@ -13,7 +15,7 @@ trait ResultHelper {
      * @param $lambda function Do some special things by this function, usually use in custom return type
      * @return Result
      */
-    public static function _genCustomResult($data, $meta, $contentType = Result::CONTENT_BINARY, $lambda = NULL) {
+    protected static function _genCustomResult($data, $meta, $contentType = Result::CONTENT_BINARY, $lambda = NULL) {
         return new Result(Result::TYPE_USER_DEFINE, $data, $meta, $contentType, $lambda);
     }
     
@@ -26,7 +28,7 @@ trait ResultHelper {
      * @param function $lambda Do some special things by this function
      * @return Result
      */
-    public static function _genPageResult($bindArrayData, $screenLocation = NULL, $layoutLocation = NULL, $contentType = Result::CONTENT_HTML, $lambda = NULL) {
+    protected static function _genPageResult($bindArrayData, $screenLocation = NULL, $layoutLocation = NULL, $contentType = Result::CONTENT_HTML, $lambda = NULL) {
         return new Result(Result::TYPE_PAGE, $bindArrayData, ['screen' => $screenLocation, 'layout' => $layoutLocation], $contentType, $lambda);
     }
     
@@ -37,7 +39,7 @@ trait ResultHelper {
      * @param function $lambda
      * @return Result
      */
-    public static function _genTextResult($text, $contentType = Result::CONTENT_TEXT, $lambda = NULL) {
+    protected static function _genTextResult($text, $contentType = Result::CONTENT_TEXT, $lambda = NULL) {
         return new Result(Result::TYPE_TEXT, $text, NULL, $contentType, $lambda);
     }
     
@@ -48,7 +50,7 @@ trait ResultHelper {
      * @param function $lambda
      * @return Result
      */
-    public static function _genHTMLResult($html, $contentType = Result::CONTENT_HTML, $lambda = NULL) {
+    protected static function _genHTMLResult($html, $contentType = Result::CONTENT_HTML, $lambda = NULL) {
         return new Result(Result::TYPE_HTML, $html, NULL, $contentType, $lambda);
     }
     
@@ -59,7 +61,7 @@ trait ResultHelper {
      * @param function $lambda
      * @return Result
      */
-    public static function _genJSONResult($data, $contentType = Result::CONTENT_JSON, $lambda = NULL) {
+    protected static function _genJSONResult($data, $contentType = Result::CONTENT_JSON, $lambda = NULL) {
         return new Result(Result::TYPE_JSON, $data, NULL, $contentType, $lambda);
     }
     
@@ -69,7 +71,7 @@ trait ResultHelper {
      * @param string $contentType
      * @return Result
      */
-    public static function _genXMLResult($data, $contentType = Result::CONTENT_XML, $lambda = NULL) {
+    protected static function _genXMLResult($data, $contentType = Result::CONTENT_XML, $lambda = NULL) {
         return new Result(Result::TYPE_XML, $data, NULL, $contentType);
     }
     
@@ -80,16 +82,16 @@ trait ResultHelper {
      * @param function $lambda
      * @return Result
      */
-    public static function _genRESTResult($data, $type = 'AUTO', $lambda = NULL) {
+    protected static function _genRESTResult($data, $type = 'AUTO', $lambda = NULL) {
         $type = strtoupper($type);
         if ($type === 'AUTO') {
             $request = HttpRequest::getCurrentRequest();
             $type = $request->getRestfulRequest();
         }
         if ($type === 'XML' || $type === 'JSON') {
-            $func = 'gen' . $type . 'Result';
-            $contentType = constant('Result::CONTENT_' . $type);
-            return Result::$func($data, $contentType, $lambda);
+            $func = '_gen' . $type . 'Result';
+            $contentType = constant('Hexagon\system\result\Result::CONTENT_' . $type);
+            return self::$func($data, $contentType, $lambda);
         } else {
             throw new UnknownResultType();
         }
@@ -102,7 +104,7 @@ trait ResultHelper {
      * @param function $lambda
      * @return Result
      */
-    public static function _genPNGResult($gdRes, $contentType = Result::CONTENT_PNG, $lambda = NULL) {
+    protected static function _genPNGResult($gdRes, $contentType = Result::CONTENT_PNG, $lambda = NULL) {
         return new Result(Result::TYPE_PNG, $gdRes, NULL, $contentType, $lambda);
     }
     
@@ -114,7 +116,7 @@ trait ResultHelper {
      * @param function $lambda
      * @return Result
      */
-    public static function _genJPEGResult($gdRes, $contentType = Result::CONTENT_JPEG, $jpegQuality = 75, $lambda = NULL) {
+    protected static function _genJPEGResult($gdRes, $contentType = Result::CONTENT_JPEG, $jpegQuality = 75, $lambda = NULL) {
         return new Result(Result::TYPE_JPEG, $gdRes, ['quality' => $jpegQuality], $contentType, $lambda);
     }
     
@@ -125,7 +127,7 @@ trait ResultHelper {
      * @param function $lambda
      * @return Result
      */
-    public static function _genGIFResult($gdRes, $contentType = Result::CONTENT_GIF, $lambda = NULL) {
+    protected static function _genGIFResult($gdRes, $contentType = Result::CONTENT_GIF, $lambda = NULL) {
         return new Result(Result::TYPE_GIF, $gdRes, NULL, $contentType, $lambda);
     }
     
@@ -133,7 +135,7 @@ trait ResultHelper {
      * this result is nothing, usually use in a cli task
      * @return Result
      */
-    public static function _genNoneResult() {
+    protected static function _genNoneResult() {
         return new Result(Result::TYPE_NONE, NULL, NULL, NULL, NULL);
     }
     
@@ -146,7 +148,7 @@ trait ResultHelper {
      *                       303 - See Other <br />
      *                       307 - Temporary Redirect <br />
      */
-    public static function _redirect($uri, $code = 302) {
+    protected static function _redirect($uri, $code = 302) {
         header('Location: ' . $uri, TRUE, $code);
         return self::_genNoneResult();
     }

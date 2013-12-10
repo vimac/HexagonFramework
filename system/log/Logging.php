@@ -13,7 +13,7 @@ trait Logging {
      * Log a message
      * @param $msg text message or any object
      */
-    public static function log($msg, $level = HEXAGON_LOG_LEVEL_DEBUG, $strLevel = 'DBG') {
+    protected static function _log($msg, $level = HEXAGON_LOG_LEVEL_DEBUG, $strLevel = 'DBG') {
         if (defined('HEXAGON_LOG_LEVEL')) {
             $logLevel = HEXAGON_LOG_LEVEL;
         } else {
@@ -25,7 +25,7 @@ trait Logging {
             LogAppender::getInstance()->append(
                 '[' . $strLevel . '] ' .
                 '[' . $trace['class'] . $trace['type'] . $trace['function'] . '] ' .
-                self::dump($msg)
+                self::_dumpObj($msg)
             );
         }
     }
@@ -34,46 +34,47 @@ trait Logging {
      * Log debug level message
      * @param $msg text message or any object
      */
-    public static function logDebug($msg) {
-        self::log($msg, HEXAGON_LOG_LEVEL_DEBUG, 'DBG');
+    protected static function _logDebug($msg) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_DEBUG, 'DBG');
     }
     
     /**
      * Log info level message
      * @param $msg text message or any object
      */
-    public static function logInfo($msg) {
-        self::log($msg, HEXAGON_LOG_LEVEL_INFO, 'INF');
+    protected static function _logInfo($msg) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_INFO, 'INF');
     }
     
     /**
      * Log warning level message
      * @param $msg text message or any object
      */
-    public static function logWarn($msg) {
-        self::log($msg, HEXAGON_LOG_LEVEL_WARN, 'WRN');
+    protected static function _logWarn($msg) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_WARN, 'WRN');
     }
     
     /**
      * Log error level message
      * @param $msg text message or any object
      */
-    public static function logErr($msg) {
-        self::log($msg, HEXAGON_LOG_LEVEL_ERROR, 'ERR');
+    protected static function _logErr($msg) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_ERROR, 'ERR');
     }
     
     /**
      * Log fatal level message
      */
-    public static function logFatal($msg) {
-        self::log($msg, HEXAGON_LOG_LEVEL_FATAL, 'FAT');
+    protected static function _logFatal($msg) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_FATAL, 'FAT');
     }
     
     /**
      * Convert any simple object or array to text
      * @param unknown_type $obj
+     * @return string
      */
-    private static function dump($obj) {
+    protected static function _dumpObj($obj) {
         if (is_object($obj) || is_array($obj)) {
             $text = print_r($obj, true);
             $text = preg_replace('/\s+/', " ", $text);
