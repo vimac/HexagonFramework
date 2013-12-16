@@ -5,7 +5,7 @@ namespace Hexagon\system\log;
 use Hexagon\Context as Context;
 
 /**
- * This class implements a file log appender
+ * This class implements a single file log appender
  * @author mac
  */
 class FileLogAppender{
