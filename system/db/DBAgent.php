@@ -123,7 +123,8 @@ class DBAgent {
             $this->lastInsertId = $pdo->lastInsertId();
             $lines = $statement->rowCount();
         } else {
-            throw new DBAgentException('SQL exec error, SQL: [' . $sql . '], arguments: [' . json_encode($this->argValue) . ']');
+            $sql = $this->buildSQLDebugCode($sql);
+            throw new DBAgentException('SQL exec error, with PDO error message: "' . $statement->errorInfo()[2] . '", check SQL below:' . $sql );
         }
         
         $statement->closeCursor();
@@ -224,7 +225,8 @@ class DBAgent {
         if ($result) {
             $rs = $statement->fetchAll(PDO::FETCH_ASSOC);
         } else {
-            throw new DBAgentException('SQL exec error, SQL: [' . $sql . '], arguments: [' . json_encode($this->argValue) . ']');
+            $sql = $this->buildSQLDebugCode($sql);
+            throw new DBAgentException('SQL exec error, with PDO error message: "' . $statement->errorInfo()[2] . '", check SQL below:' . $sql );
         }
         
         if ($clearField) {
@@ -339,6 +341,33 @@ class DBAgent {
     
     public function commit() {
         return $this->getPDOInstance()->commit();
+    }
+    
+    /**
+     * MySQL only
+     */
+    private function buildSQLDebugCode($sql) {
+        $count = count($this->argValue);
+        
+        $varNames = [];
+        for ($i = 0; $i < $count; $i++) {
+            $varNames[] = 'param' . $i;
+        }
+        
+        $result = "\n" . 'PREPARE statement FROM "' . $sql .'"' . ";\n";
+        $i = 0;
+        $using = [];
+        foreach ($this->argValue as $param) {
+            $result .= 'SET @param' . $i . '=';
+            $result .= is_null($param['val']) ? 'NULL' : '"' . addslashes($param['val']) . '"';
+            $result .= ";\n";
+            $using[] = '@param' . $i;
+            $i ++;
+        }
+        
+        $result .= 'EXECUTE statement USING ' . implode(',', $using) . ";\n";
+        
+        return $result;
     }
 }
 

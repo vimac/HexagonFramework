@@ -36,7 +36,7 @@ class BaseConfig {
     public $cipherIv = '50a2fabfdd276f573ff97ace8b11c5f4';
     
     public $interceptRules = [];
-
+    
     /**
      * An instance of this class
      * @var BaseConfig

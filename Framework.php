@@ -217,6 +217,15 @@ final class Framework {
         return $this;
     }
     
+    public function stop($code = 0, $msg = '', $func = NULL) {
+        if (!empty($msg)) {
+            self::_logDebug('End the response. msg: ' . $msg);            
+        } else {
+            self::_logDebug('End the response.');
+        }
+        die;
+    }
+    
     private function __construct() {
         // do nothing
     }
