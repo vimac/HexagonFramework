@@ -29,6 +29,49 @@ class Dispatcher {
         return self::$d;
     }
     
+    private function buildObject($classNS, $method) {
+        $request = HttpRequest::getCurrentRequest();
+        $refCon = new \ReflectionClass($classNS);
+        
+        if ($refCon->hasMethod($method)) {
+            $refMethod = $refCon->getMethod($method);
+        
+            if ($refMethod->getModifiers() & \ReflectionMethod::IS_PUBLIC) {
+                $refParams = $refMethod->getParameters();
+                $params = [];
+                foreach ($refParams as $refParam) {
+                    $paramName = $refParam->getName();
+                    $paramPos = $refParam->getPosition();
+        
+                    if (!$refParam->isOptional()) {
+                        if (!$request->hasParameter($paramName)) {
+                            throw new MissingParameter($paramName, $method, $classNS);
+                        }
+                        $params[$paramPos] = $request->getParameter($paramName);
+                    } else {
+                        if ($request->hasParameter($paramName)) {
+                            $params[$paramPos] = $request->getParameter($paramName);
+                        } else {
+                            $params[$paramPos] = $refParam->getDefaultValue();
+                        }
+                    }
+                }
+        
+                $instance = $refCon->newInstance($request, HttpResponse::getCurrentResponse());
+                $ret = $refMethod->invokeArgs($instance, $params);
+                if (is_null($ret)) {
+                    return NULL;
+                } else {
+                    return $ret;
+                }
+            } else {
+                throw new MissingMethod($method, $classNS);
+            }
+        } else {
+            throw new MissingMethod($method, $classNS);
+        }
+    }
+    
     public function invoke($uri) {
         $config = Context::$appConfig;
         
@@ -51,43 +94,7 @@ class Dispatcher {
         
         $refCon = new \ReflectionClass($classNS);
         
-        if ($refCon->hasMethod($method)) {
-            $refMethod = $refCon->getMethod($method);
-            
-            if ($refMethod->getModifiers() & \ReflectionMethod::IS_PUBLIC) {
-                $refParams = $refMethod->getParameters();
-                $params = [];
-                foreach ($refParams as $refParam) {
-                    $paramName = $refParam->getName();
-                    $paramPos = $refParam->getPosition();
-                    
-                    if (!$refParam->isOptional()) {
-                        if (!$request->hasParameter($paramName)) {
-                            throw new MissingParameter($paramName, $method, $classNS);
-                        }
-                        $params[$paramPos] = $request->getParameter($paramName);
-                    } else {
-                        if ($request->hasParameter($paramName)) {
-                            $params[$paramPos] = $request->getParameter($paramName);
-                        } else {
-                            $params[$paramPos] = $refParam->getDefaultValue();
-                        }
-                    }
-                }
-                
-                $instance = $refCon->newInstance($request, HttpResponse::getCurrentResponse());
-                $ret = $refMethod->invokeArgs($instance, $params);
-                if (is_null($ret)) {
-                    return NULL;
-                } else {
-                    return $ret;
-                }
-            } else {
-                throw new MissingMethod($method, $classNS);
-            }
-        } else {
-            throw new MissingMethod($method, $classNS);
-        }
+        return $this->buildObject($classNS, $method);
     }
     
 }

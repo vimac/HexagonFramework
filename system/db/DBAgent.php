@@ -6,7 +6,7 @@ use \Closure;
 use \PDO;
 use \PDOException;
 use \PDOStatement;
-use Hexagon\system\log\Logging;
+use \Hexagon\system\log\Logging;
 
 /**
  * DB access layer
@@ -15,39 +15,6 @@ use Hexagon\system\log\Logging;
 class DBAgent {
     
     use Logging;
-    
-    const PARAM_BOOL = PDO::PARAM_BOOL;
-    const PARAM_INT = PDO::PARAM_INT;
-    const PARAM_STMT = PDO::PARAM_STMT;
-    const PARAM_STR = PDO::PARAM_STR;
-    const PARAM_NULL = PDO::PARAM_NULL;
-    const PARAM_LOB = PDO::PARAM_LOB;
-    
-    /**
-     * Update fields
-     * @var array
-     */
-    private $updateField = [];
-    
-    /**
-     * Where fields
-     * @var array
-     */
-    private $whereField = [];
-    
-    /**
-     * Prepared arguments, format:
-     * 
-     * [
-     *   $index => [
-     *       'value' => $value,
-     *       'type' => $type
-     *   ]
-     * ]
-     * 
-     * @var array
-     */
-    private $argValue = [];
     
     /**
      * @var number
@@ -92,145 +59,95 @@ class DBAgent {
         }
     }
     
+    public function prepare($sql) {
+        return new DBAgentStatement($sql, $this);
+    }
     
     /**
      * Execute update SQL
-     * @param string $sql
-     * @param boolean $clearField clear fields after execution
+     * @param DBAgentStatement $st
      * @throws DBAgentException
      * @return integer Affected lines
      */
-    public function executeUpdate($sql, $clearField = TRUE) {
-        self::_logDebug('SQL: ' . $sql);
+    public function executeUpdate(DBAgentStatement $st) {
+        self::_logDebug('SQL: [' . $st->getSQL() . ']. with Params: ' . json_encode($st->buildArgsDebugInfo()));
         
         $pdo = $this->getPDOInstance();
         $lines = -1;
         
-        try {
-            $statement = $pdo->prepare($sql);
-            foreach ($this->argValue as $key => $val) {
-                $statement->bindParam($key + 1, $val['val'], $val['type']);
-            }
-            self::_logDebug('Params: ' . json_encode($this->argValue));
-        } catch(PDOException $e) {
-            self::_logErr($e);
-            throw new DBAgentException('SQL prepared error ' . $e->getCode() . ' ' . $e->getMessage() . ', SQL: [' . $sql . ']');
-        }
+        $pdoStatement = $st->getPDOStatement();
         
-        $result = $statement->execute();
+        $result = $pdoStatement->execute();
         
         if ($result) {
             $this->lastInsertId = $pdo->lastInsertId();
-            $lines = $statement->rowCount();
+            $lines = $pdoStatement->rowCount();
         } else {
-            $sql = $this->buildSQLDebugCode($sql);
-            throw new DBAgentException('SQL exec error, with PDO error message: "' . $statement->errorInfo()[2] . '", check SQL below:' . $sql );
+            $sql = $st->buildSQLDebugCode();
+            throw new DBAgentException('SQL exec error, with PDO error message: "' . $statement->errorInfo()[2] . '", check SQL below:' . $sql);
         }
         
-        $statement->closeCursor();
-        
-        if ($clearField) {
-            $this->clearFields();
-        }
+        $st->reset();
         
         return $lines;
     }
     
     
     /**
-     * Execute query SQL
-     * @param string $sql
-     * @param callable $callback
-     * @param mixed $args
-     * @param boolean $clearField clear fields after execution
+     * Execute query SQL with callback
+     * @param DBAgentStatement $st
+     * @param Closure $callback
      * @throws DBAgentException 
      */
-    public function queryWithCallback($sql, $callback, $args = NULL, $clearField = TRUE) {
-        
-        self::_logDebug('SQL: ' . $sql);
+    public function queryWithCallback(DBAgentStatement $st, Closure $callback) {
+        self::_logDebug('SQL: [' . $st->getSQL() . ']. with Params: ' . json_encode($st->buildArgsDebugInfo()));
         
         $pdo = $this->getPDOInstance();
         $lines = -1;
         $ret = TRUE;
         
-        try {
-            $statement = $pdo->prepare($sql);
-            foreach ($this->argValue as $key => $val) {
-                $statement->bindParam($key+1, $val['val'], $val['type']);
-            }
-            self::_logDebug('Params: ' . json_encode($this->argValue));
-        } catch(PDOException $e) {
-            self::_logErr($e);
-            throw new DBAgentException('SQL prepared error ' . $e->getCode() . ' ' . $e->getMessage() . ', SQL: [' . $sql . ']');
-        }
+        $pdoStatement = $st->getPDOStatement();
 
-        $result = $statement->execute();
+        $result = $pdoStatement->execute();
         
         if ($result) {
-            if ($callback instanceof Closure) {
-                while ($line = $statement->fetch(PDO::FETCH_ASSOC)) {
-                    $r = $callback($line, $args);
-                    if ($r === FALSE) {
-                        break;
-                    }
+            $index = 0;
+            while ($line = $pdoStatement->fetch(PDO::FETCH_ASSOC)) {
+                $r = $callback($line, $index);
+                $index++;
+                if ($r === FALSE) {
+                    break;
                 }
-            } elseif (is_array($callback)) {
-                while ($line = $statement->fetch(PDO::FETCH_ASSOC)) {
-                    $r = call_user_func_array($callback, array($line, $args));
-                    if ($r === FALSE) {
-                        break;
-                    }
-                }
-            } else {
-                throw new DBAgentException('Error callback type');
             }
         } else {
             $ret = FALSE;
         }
         
-        $statement->closeCursor();
-        
-        if ($clearField) {
-            $this->clearFields();
-        }
+        $st->reset();
         
         return $ret;
     }
     
     /**
      * Execute SQL statement and return the result set
-     * @param string $sql
-     * @param boolean $clearField clear fields after execution
+     * @param DBAgentStatement $st
      * @throws DBAgentException
      * @return array Result set
      */
-    public function query($sql, $clearField = TRUE) {
-        self::_logDebug('SQL: ' . $sql);
+    public function query(DBAgentStatement $st) {
+        self::_logDebug('SQL: [' . $st->getSQL() . ']. with Params: ' . json_encode($st->buildArgsDebugInfo()));
         
         $pdo = $this->getPDOInstance();
         
-        try {
-            $statement = $pdo->prepare($sql);
-            foreach ($this->argValue as $key => $val) {
-                $statement->bindParam($key + 1, $val['val'], $val['type']);
-            }
-            self::_logDebug('Params: ' . json_encode($this->argValue));
-        } catch (PDOException $e) {
-            self::_logErr($e);
-            throw new DBAgentException('SQL prepared error ' . $e->getCode() . ' ' . $e->getMessage() . ', SQL: [' . $sql . ']');
-        }
+        $pdoStatement = $st->getPDOStatement();
     
-        $result = $statement->execute();
+        $result = $pdoStatement->execute();
         
         if ($result) {
-            $rs = $statement->fetchAll(PDO::FETCH_ASSOC);
+            $rs = $pdoStatement->fetchAll(PDO::FETCH_ASSOC);
         } else {
-            $sql = $this->buildSQLDebugCode($sql);
-            throw new DBAgentException('SQL exec error, with PDO error message: "' . $statement->errorInfo()[2] . '", check SQL below:' . $sql );
-        }
-        
-        if ($clearField) {
-            $this->clearFields();
+            $sql = $st->buildSQLDebugCode();
+            throw new DBAgentException('SQL exec error, with PDO error message: "' . $statement->errorInfo()[2] . '", check SQL below:' . $sql);
         }
         
         return $rs;
@@ -238,102 +155,14 @@ class DBAgent {
     
     /**
      * Execute SQL statement and return the first line
-     * @param string $sql
-     * @param boolean $clearField clear fields after execution
+     * @param DBAgentStatement $sql
      * @throws DBAgentException
      * @return array Result set
      */
-    public function queryOne($sql, $clearField = TRUE) {
-        return current($this->query($sql, $clearField));
+    public function queryOne(DBAgentStatement $st) {
+        return current($this->query($st));
     }
         
-    /**
-     * Add update field
-     * @param string $field
-     */
-    public function addUpdateField($field) {
-        $this->updateField[] = $field;
-    }
-
-    /**
-     * Add where field
-     * @param string $field
-     */
-    public function addWhereField($field) {
-        $this->whereField[] = $field;
-    }
-    
-    /**
-     * Check whether need update statement
-     * @return bool
-     */
-    public function needUpdate() {
-        return sizeof($this->updateField) > 0;
-    }
-    
-    /**
-     * Get statement of update
-     * @return string SQL fragment
-     */
-    public function getUpdateSQL() {
-        $sb = '';
-        foreach ($this->updateField as $s) {
-            $sb .= ', ' . $s . ' ';
-        }
-        return substr($sb, 1);
-    }
-
-    /**
-     * Check whether need where statement
-     * @return bool
-     */
-    public function needWhere() {
-        return sizeof($this->whereField) > 0;
-    }
-
-    /**
-     * Get statement of where
-     * @return string SQL fragment
-     */
-    public function getWhereSQL() {
-        $sb = '';
-        foreach ($this->whereField as $s) {
-            $sb .= 'and ' . $s . ' ';
-        }
-        return substr($sb, 3);
-    }
-    
-    public function addStatementArgs($data) {
-        foreach ($data as $d) {
-            if (is_array($d) && count($d) === 2) {
-                $this->argValue[] = ['val' => $d[0], 'type' => $d[1]];
-            } else {
-                $this->argValue[] = ['val' => $d, 'type' => self::PARAM_STR];
-            }
-        }
-    }
-    
-    /**
-     * Add prepared statement argument
-     * @param mixed $val
-     * @param int $type
-     */
-    public function addStatementArg($val, $type = self::PARAM_STR) {
-        $arg = array(
-            'val' => $val,
-            'type' => $type
-        );
-        $this->argValue[] = $arg;
-    }
-
-    /**
-     * Clear all fields
-     */
-    public function clearFields() {
-        $this->updateField = [];
-        $this->whereField = [];
-        $this->argValue = [];
-    }
     
     public function beginTransaction() {
         return $this->getPDOInstance()->beginTransaction();
@@ -343,32 +172,6 @@ class DBAgent {
         return $this->getPDOInstance()->commit();
     }
     
-    /**
-     * MySQL only
-     */
-    private function buildSQLDebugCode($sql) {
-        $count = count($this->argValue);
-        
-        $varNames = [];
-        for ($i = 0; $i < $count; $i++) {
-            $varNames[] = 'param' . $i;
-        }
-        
-        $result = "\n" . 'PREPARE statement FROM "' . $sql .'"' . ";\n";
-        $i = 0;
-        $using = [];
-        foreach ($this->argValue as $param) {
-            $result .= 'SET @param' . $i . '=';
-            $result .= is_null($param['val']) ? 'NULL' : '"' . addslashes($param['val']) . '"';
-            $result .= ";\n";
-            $using[] = '@param' . $i;
-            $i ++;
-        }
-        
-        $result .= 'EXECUTE statement USING ' . implode(',', $using) . ";\n";
-        
-        return $result;
-    }
 }
 
 class DBAgentException extends \Exception{
