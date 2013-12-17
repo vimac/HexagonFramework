@@ -2,8 +2,6 @@
 
 namespace Hexagon\model;
 
-use \Hexagon\system\log\Logging;
-
 abstract class RequestModel extends Model {
     const REQUEST_METHOD_HEAD = 0b00001;
     const REQUEST_METHOD_GET = 0b00010;
@@ -13,11 +11,15 @@ abstract class RequestModel extends Model {
     
     const REQUEST_METHOD_ALL_TYPE = 0b11111;
     const REQUEST_METHOD_GET_AND_POST = 0b00110;
+    const REQUEST_METHOD_NONE = 0b00000;
     
-    public $_requestMethod = self::REQUEST_METHOD_GET;
+    protected static $_requestMethod = self::REQUEST_METHOD_ALL_TYPE;
     
-    public function checkAllowedMethod() {
-        //$method = $_SERVER['REQUEST_METHOD'];
+    public static final function _checkAllowedMethod() {
+        $class = get_called_class();
+        $method = $_SERVER['REQUEST_METHOD'];
+        $methodVal = constant('self::REQUEST_METHOD_' . $method);
+        return $methodVal & $class::$_requestMethod;
     }
     
     

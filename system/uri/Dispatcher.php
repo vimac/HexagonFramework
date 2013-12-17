@@ -2,10 +2,14 @@
 
 namespace Hexagon\system\uri;
 
-use Hexagon\system\log\Logging;
-use Hexagon\Context;
-use Hexagon\system\http\HttpRequest;
-use Hexagon\system\http\HttpResponse;
+use \ReflectionClass;
+use \ReflectionMethod;
+use \ReflectionProperty;
+use \Exception;
+use \Hexagon\system\log\Logging;
+use \Hexagon\Context;
+use \Hexagon\system\http\HttpRequest;
+use \Hexagon\system\http\HttpResponse;
 
 class Dispatcher {
     use Logging;
@@ -31,28 +35,49 @@ class Dispatcher {
     
     private function buildObject($classNS, $method) {
         $request = HttpRequest::getCurrentRequest();
-        $refCon = new \ReflectionClass($classNS);
+        $refCon = new ReflectionClass($classNS);
         
         if ($refCon->hasMethod($method)) {
             $refMethod = $refCon->getMethod($method);
         
-            if ($refMethod->getModifiers() & \ReflectionMethod::IS_PUBLIC) {
+            if ($refMethod->getModifiers() & ReflectionMethod::IS_PUBLIC) {
                 $refParams = $refMethod->getParameters();
+
                 $params = [];
-                foreach ($refParams as $refParam) {
-                    $paramName = $refParam->getName();
-                    $paramPos = $refParam->getPosition();
-        
-                    if (!$refParam->isOptional()) {
-                        if (!$request->hasParameter($paramName)) {
-                            throw new MissingParameter($paramName, $method, $classNS);
+                if (count($refParams) == 1 && current($refParams)->getClass()->isSubclassOf('\Hexagon\model\RequestModel')) {
+                    $refClass = current($refParams)->getClass();
+                    $param = $refClass->newInstance();
+                    
+                    $refCheckAllowedMethod = $refClass->getMethod('_checkAllowedMethod');
+                    if (!$refCheckAllowedMethod->invoke(NULL)) {
+                        throw new MethodNotAllowd($method, $classNS);
+                    }
+                    
+                    $vars = $refClass->getProperties(ReflectionProperty::IS_PUBLIC);
+                    foreach ($vars as $var) {
+                        $varName = $var->getName();
+                        
+                        if ($request->hasParameter($varName)) {
+                            $param->$varName = $request->getParameter($varName);
                         }
-                        $params[$paramPos] = $request->getParameter($paramName);
-                    } else {
-                        if ($request->hasParameter($paramName)) {
+                    }
+                    $params[] = $param;
+                } else {
+                    foreach ($refParams as $refParam) {
+                        $paramName = $refParam->getName();
+                        $paramPos = $refParam->getPosition();
+            
+                        if (!$refParam->isOptional()) {
+                            if (!$request->hasParameter($paramName)) {
+                                throw new MissingParameter($paramName, $method, $classNS);
+                            }
                             $params[$paramPos] = $request->getParameter($paramName);
                         } else {
-                            $params[$paramPos] = $refParam->getDefaultValue();
+                            if ($request->hasParameter($paramName)) {
+                                $params[$paramPos] = $request->getParameter($paramName);
+                            } else {
+                                $params[$paramPos] = $refParam->getDefaultValue();
+                            }
                         }
                     }
                 }
@@ -92,21 +117,27 @@ class Dispatcher {
         
         $request = HttpRequest::getCurrentRequest();
         
-        $refCon = new \ReflectionClass($classNS);
+        $refCon = new ReflectionClass($classNS);
         
         return $this->buildObject($classNS, $method);
     }
     
 }
 
-class MissingMethod extends \Exception {
+class MethodNotAllowd extends Exception {
+    public function __construct($method, $classNS) {
+        parent::__construct('Current HTTP request method "' . $_SERVER['REQUEST_METHOD'] . '" to [' . $classNS . '->' . $method . '] not allowed.', 400);
+    }
+}
+
+class MissingMethod extends Exception {
     public function __construct($method, $classNS) {
         parent::__construct('Missing method [' . $classNS . '->' . $method . ']', 404);
     }
 }
 
-class MissingParameter extends \Exception {
+class MissingParameter extends Exception {
     public function __construct($name, $method, $classNS) {
-        parent::__construct('Missing request argument for parameter [' . $name . '] in controller method [' . $classNS . '->' . $method . ']', 500);
+        parent::__construct('Missing request argument for parameter [' . $name . '] in controller method [' . $classNS . '->' . $method . ']', 404);
     }
 }
