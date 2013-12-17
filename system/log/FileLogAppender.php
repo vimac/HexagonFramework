@@ -33,7 +33,9 @@ class FileLogAppender{
         if (!$this->f) {
             @$this->f = fopen($this->logFile, 'a');
         }
+        @flock($this->f, LOCK_EX);
         @fwrite($this->f, date('[Y-m-d H:i:s] ') . $msg . "\n");
+        @flock($this->f, LOCK_UN);
     }
     
     /**
