@@ -97,6 +97,27 @@ class Dispatcher {
         }
     }
     
+    public function invokeTask($uri) {
+        $config = Context::$appConfig;
+        
+        $parts = explode('/', $uri);
+        if (empty($parts[0])) {
+            array_shift($parts);
+        }
+        $method = array_pop($parts);
+        $class = array_pop($parts);
+        $className = ucfirst($class) . 'Task';
+        array_unshift($parts, Context::$appNS, 'app', 'task');
+        array_push($parts, $className);
+        $classNS = join('\\', $parts);
+        
+        $this->method = $method;
+        $this->className = $className;
+        $this->classNS = $classNS;
+        
+        return $this->buildObject($classNS, $method);
+    }
+    
     public function invoke($uri) {
         $config = Context::$appConfig;
         
@@ -114,10 +135,6 @@ class Dispatcher {
         $this->method = $method;
         $this->className = $className;
         $this->classNS = $classNS;
-        
-        $request = HttpRequest::getCurrentRequest();
-        
-        $refCon = new ReflectionClass($classNS);
         
         return $this->buildObject($classNS, $method);
     }

@@ -2,48 +2,23 @@
 
 namespace Hexagon\system\log;
 
-use Hexagon\Context;
+use \ReflectionClass;
 
 class LogAppender{
     
-    private $appender = null;
+    private static $appenders = null;
     
     /**
-     * An instance of this class
-     * @var LogAppender
+     * Factory
      */
-    private static $w;
-    
-    /**
-     * Singleton
-     * @var LogAppender
-     */
-    public static function getInstance() {
-        if (self::$w == null) {
-            self::$w = new self();
+    public static function getInstance($appender, $param) {
+        $key = $appender . json_encode($param);
+        var_dump($key);
+        if (!isset(self::$appenders[$key])) {
+            $refAppender = new ReflectionClass($appender);
+            $appender = $refAppender->newInstanceArgs($param);
+            self::$appenders[$key] = $appender;
         }
-        return self::$w;
-    }
-    
-    public function append($msg) {
-        $this->appender->append($msg);
-    }
-    
-    private function __construct() {
-        $config = Context::$appConfig;
-        if (!empty($config->logAppender)) {
-            $this->appender = new $config->logAppender();
-        } else {
-            $this->appender = new NullAppender();
-        }
-    }
-}
-
-/**
- * empty
- */
-class NullAppender{
-    public function append() {
-        
+        return self::$appenders[$key];
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Hexagon\system\log;
 
+use \Hexagon\Context;
+
 /**
  * Implementation of the logging system
  * @author mac
@@ -14,19 +16,26 @@ trait Logging {
      * @param $msg text message or any object
      */
     protected static function _log($msg, $level = HEXAGON_LOG_LEVEL_DEBUG, $strLevel = 'DBG') {
-        if (defined('HEXAGON_LOG_LEVEL')) {
-            $logLevel = HEXAGON_LOG_LEVEL;
-        } else {
-            $logLevel = HEXAGON_LOG_LEVEL_ALL;
-        }
+        $config = Context::$appConfig;
+        $trace = debug_backtrace(false)[2];
         
-        if ($level & $logLevel) {
-            $trace = debug_backtrace(false)[2]; //0,1 for this class self, so use 2
-            LogAppender::getInstance()->append(
-                '[' . $strLevel . '] ' .
-                '[' . $trace['class'] . $trace['type'] . $trace['function'] . '] ' .
-                self::_dumpObj($msg)
-            );
+        $filter = LogFilter::getInstance();
+        
+        $class = $trace['class'];
+        $type = $trace['type'];
+        $method = $trace['function'];
+        
+        $logs = $filter->getLoggerInfo($class, $method);
+        
+        foreach ($logs as $log) {
+            $logLevel = $log['level'];
+            if ($level & $logLevel) {
+                LogAppender::getInstance($log['appender'], $log['params'])->append(
+                    '[' . $strLevel . '] ' .
+                    '[' . $trace['class'] . $trace['type'] . $trace['function'] . '] ' .
+                    self::_dumpObj($msg)
+                );
+            }
         }
     }
     

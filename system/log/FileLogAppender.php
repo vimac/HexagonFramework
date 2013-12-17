@@ -2,8 +2,6 @@
 
 namespace Hexagon\system\log;
 
-use Hexagon\Context as Context;
-
 /**
  * This class implements a single file log appender
  * @author mac
@@ -12,20 +10,17 @@ class FileLogAppender{
     
     private $f;
     
-    public function __construct() {
-        $config = Context::$appConfig;
-        if (empty($config->logPath)) {
-            $config->logPath = Context::$appBasePath . DIRECTORY_SEPARATOR . 'logs';
-        }
+    public function __construct($filename) {
         $checkDir = FALSE;
-        if (!is_dir($config->logPath)) {
-            $checkDir = mkdir($config->logPath);
+        $dir = dirname($filename);
+        if (!is_dir($dir)) {
+            $checkDir = mkdir($dir);
         } else {
             $checkDir = TRUE;
         }
         
         if ($checkDir) {
-            $this->logFile = $config->logPath . DIRECTORY_SEPARATOR . Context::$appNS . $config->logNameSuffix;
+            $this->logFile = $filename;
         }
     }
     

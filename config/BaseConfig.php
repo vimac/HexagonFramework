@@ -7,11 +7,10 @@ class BaseConfig {
     public $appUrl = 'http://localhost/';
     
     public $database = [];
-    public $logLevel = HEXAGON_LOG_LEVEL_ALL;
     
-    public $logPath = ''; // empty for project logs directory
-    public $logNameSuffix = '';
-    public $logAppender = '\Hexagon\system\log\FileLogAppender';
+    public $logs = [
+        [HEXAGON_LOG_LEVEL_ALL, HEXAGON_LOG_MATCH_ALL, '\Hexagon\system\log\FileLogAppender', 'log/all.log'],
+    ];
     
     public $charset = 'UTF-8';
     

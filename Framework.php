@@ -185,7 +185,11 @@ final class Framework {
         // check pre interceptor rule results
         if (!isset($interceptResult)) {
             $dispatcher = Dispatcher::getInstance();
-            $conResult = $dispatcher->invoke($uri);
+            if (HEXAGON_CLI_MODE) {
+                $conResult = $dispatcher->invokeTask($uri);
+            } else {
+                $conResult = $dispatcher->invoke($uri);
+            }
             
             Context::$targetClassMethod = $dispatcher->method;
             Context::$targetClassName = $dispatcher->className;

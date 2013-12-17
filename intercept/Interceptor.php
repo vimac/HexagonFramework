@@ -2,9 +2,10 @@
 
 namespace Hexagon\intercept;
 
-use Hexagon\system\log\Logging;
-use Hexagon\Context;
-use Hexagon\system\result\Result;
+use \Exception;
+use \Hexagon\system\log\Logging;
+use \Hexagon\Context;
+use \Hexagon\system\result\Result;
 
 class Interceptor {
     
@@ -83,18 +84,18 @@ class Interceptor {
     }
 }
 
-class MissingInterceptorRuleMethod extends \Exception {
+class MissingInterceptorRuleMethod extends Exception {
     public function __construct($method, $classNS) {
         parent::__construct('Missing method [' . $classNS . '->' . $method . ']', 404);
     }
 }
 
-class WrongInterceptorRuleReturnType extends \Exception {
+class WrongInterceptorRuleReturnType extends Exception {
     public function __construct($cls) {
         $ref = new \ReflectionClass($cls);
         parent::__construct('Wrong return type for interceptor rule, class name: [' . $ref->getName() . ']', 500);
     }
 }
 
-class BreakInterceptor extends \Exception {
+class BreakInterceptor extends Exception {
 }
