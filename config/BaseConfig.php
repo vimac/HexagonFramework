@@ -60,9 +60,9 @@ class BaseConfig {
      * @return array
      */
     public function getDBConfig($cfgName = 'default') {
-        if (is_array($this->database[0])) {
+        if (is_array(current($this->database))) {
             if ($cfgName === 'default') {
-                return $this->database[0];
+                return current($this->database);
             } else {
                 return $this->database[$cfgName];
             }
