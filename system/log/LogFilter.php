@@ -54,8 +54,6 @@ class LogFilter {
         foreach ($logIds as $id) {
             $logs[] = $config->logs[$id];
         }
-        var_dump($class . '.' . $method);
-        var_dump($logs);
         return $logs;
     }
     
@@ -79,7 +77,6 @@ class LogFilter {
         if (!isset($this->wdCache[$key])) {
             $result = [];
             foreach ($this->wdRule as $rule) {
-                var_dump($rule);
                 if (fnmatch($rule[0], $class, FNM_NOESCAPE | FNM_PATHNAME) && fnmatch($rule[1], $method, FNM_NOESCAPE | FNM_PATHNAME)) {
                     $result[] = $rule[2];
                 }
