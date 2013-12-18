@@ -79,7 +79,7 @@ class DBAgentStatement {
      * MySQL only
      */
     public function buildSQLDebugCode() {
-        $count = count($this->argValue);
+        $count = count($this->args);
     
         $varNames = [];
         for ($i = 0; $i < $count; $i++) {
