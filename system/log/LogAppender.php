@@ -13,7 +13,6 @@ class LogAppender{
      */
     public static function getInstance($appender, $param) {
         $key = $appender . json_encode($param);
-        var_dump($key);
         if (!isset(self::$appenders[$key])) {
             $refAppender = new ReflectionClass($appender);
             $appender = $refAppender->newInstanceArgs($param);
