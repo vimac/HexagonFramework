@@ -145,8 +145,6 @@ final class Framework {
         $config = $configClass::getInstance();
         Context::$appConfig = $config;
         
-        define('HEXAGON_LOG_LEVEL', $config->logLevel);
-        
 //         set_error_handler([$config->errorHandler, 'handleError']);
 //         set_exception_handler([$config->errorHandler, 'handleException']);
 

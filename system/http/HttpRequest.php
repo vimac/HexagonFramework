@@ -268,7 +268,7 @@ class HttpRequest {
         $config = Context::$appConfig;
         if (array_key_exists($name, $this->cookies)) {
             if ($config->cookieEncryption) {
-                if ($name === $this->csrf) {
+                if ($name === $this->csrfToken) {
                     return $this->cookies[$name];
                 } else {
                     return $this->cipher->decrypt($this->cookies[$name]);

@@ -2,10 +2,11 @@
 
 namespace Hexagon\intercept;
 
-use Hexagon\system\log\Logging;
-use Hexagon\system\http\HttpRequest;
-use Hexagon\system\http\HttpResponse;
-use Hexagon\system\result\ValueHelper;
+use \Hexagon\system\log\Logging;
+use \Hexagon\system\http\HttpRequest;
+use \Hexagon\system\http\HttpResponse;
+use \Hexagon\system\result\ValueHelper;
+use \Hexagon\system\result\ResultHelper;
 
 interface IPreRule {
     public function pre();
@@ -17,7 +18,7 @@ interface IPostRule {
 
 class Rule {
     
-    use ValueHelper;
+    use ValueHelper, ResultHelper;
     
     /**
      * @var HttpRequest
