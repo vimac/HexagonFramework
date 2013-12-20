@@ -84,7 +84,7 @@ class DBAgent {
             $lines = $pdoStatement->rowCount();
         } else {
             $sql = $st->buildSQLDebugCode();
-            throw new DBAgentException('SQL exec error, with PDO error message: "' . $statement->errorInfo()[2] . '", check SQL below:' . $sql);
+            throw new DBAgentException('SQL exec error, with PDO error message: "' . $pdoStatement->errorInfo()[2] . '", check SQL below:' . $sql);
         }
         
         $st->reset();
