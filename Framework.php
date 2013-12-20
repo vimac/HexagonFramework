@@ -10,6 +10,8 @@ namespace Hexagon;
 
 require 'Common.php';
 
+use \Exception;
+
 /**
  * Application Enviroment Context
  */
@@ -79,7 +81,7 @@ final class Context {
             $path = self::$nsPaths[$root] . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $ns);
             return $path;
         } else {
-            throw new \Exception('Namespace [' . $root . '] not found');
+            throw new Exception('Namespace [' . $root . '] not found');
         }
     }
 }
