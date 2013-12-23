@@ -97,9 +97,10 @@ class DBAgent {
      * Execute query SQL with callback
      * @param DBAgentStatement $st
      * @param Closure $callback
+     * @param string $class
      * @throws DBAgentException 
      */
-    public function queryWithCallback(DBAgentStatement $st, Closure $callback) {
+    public function queryWithCallback(DBAgentStatement $st, Closure $callback, $class = NULL) {
         self::_logDebug('SQL: [' . $st->getSQL() . ']. with Params: ' . json_encode($st->buildArgsDebugInfo()));
         
         $pdo = $this->getPDOInstance();
@@ -112,11 +113,21 @@ class DBAgent {
         
         if ($result) {
             $index = 0;
-            while ($line = $pdoStatement->fetch(PDO::FETCH_ASSOC)) {
-                $r = $callback($line, $index);
-                $index++;
-                if ($r === FALSE) {
-                    break;
+            if (is_string($class)) {
+                while ($line = $pdoStatement->fetchObject($class)) {
+                    $r = $callback($line, $index);
+                    $index++;
+                    if ($r === FALSE) {
+                        break;
+                    }
+                }
+            } else {
+                while ($line = $pdoStatement->fetch(PDO::FETCH_ASSOC)) {
+                    $r = $callback($line, $index);
+                    $index++;
+                    if ($r === FALSE) {
+                        break;
+                    }
                 }
             }
         } else {
@@ -140,7 +151,7 @@ class DBAgent {
         $pdo = $this->getPDOInstance();
         
         $pdoStatement = $st->getPDOStatement();
-    
+        
         $result = $pdoStatement->execute();
         
         if ($result) {
@@ -156,11 +167,32 @@ class DBAgent {
     /**
      * Execute SQL statement and return the first line
      * @param DBAgentStatement $sql
+     * @param string $class Class name of object return
      * @throws DBAgentException
      * @return array Result set
      */
-    public function queryOne(DBAgentStatement $st) {
-        return current($this->query($st));
+    public function queryOne(DBAgentStatement $st, $class = NULL) {
+        self::_logDebug('SQL: [' . $st->getSQL() . ']. with Params: ' . json_encode($st->buildArgsDebugInfo()));
+        
+        $pdo = $this->getPDOInstance();
+        
+        $pdoStatement = $st->getPDOStatement();
+        
+        $result = $pdoStatement->execute();
+        
+        if ($result) {
+            $r = NULL;
+            if (is_string($class)) {
+                $r = $pdoStatement->fetchObject($class);
+            } else {
+                $r = $pdoStatement->fetch(PDO::FETCH_ASSOC);
+            }
+        } else {
+            $sql = $st->buildSQLDebugCode();
+            throw new DBAgentException('SQL exec error, with PDO error message: "' . $pdoStatement->errorInfo()[2] . '", check SQL below:' . $sql);
+        }
+        
+        return $r;
     }
         
     

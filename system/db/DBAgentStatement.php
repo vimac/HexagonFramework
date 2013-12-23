@@ -59,6 +59,9 @@ class DBAgentStatement {
         $this->args = [];
     }
     
+    /**
+     * @return PDOStatement
+     */
     public function getPDOStatement() {
         return $this->stmt;
     }
