@@ -36,6 +36,11 @@ class HttpRequest {
     protected $requestMethod;
     
     /**
+     * @var int
+     */
+    protected $requestTime;
+    
+    /**
      * @var string
      */
     protected $userAgent;
@@ -173,6 +178,12 @@ class HttpRequest {
             $this->acceptLanguage = '';
         }
         
+        if (isset($_SERVER['REQUEST_TIME'])) {
+            $this->requestTime = $_SERVER['REQUEST_TIME'];
+        } else {
+            $this->requestTime = time();
+        }
+        
         if (stripos($this->accept, 'json')) {
             $this->restfulRequest = 'JSON';
         } else {
@@ -202,6 +213,13 @@ class HttpRequest {
      */
     public function getRequestMethod() {
         return $this->requestMethod;
+    }
+    
+    /**
+     * @return number
+     */
+    public function getRequestTime() {
+        return $this->requestTime;
     }
 
     /**
