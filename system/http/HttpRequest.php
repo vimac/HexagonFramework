@@ -147,7 +147,6 @@ class HttpRequest {
     private function __construct() {
         if (!HEXAGON_CLI_MODE) {
             $this->requestMethod = $_SERVER['REQUEST_METHOD'];
-            $this->userAgent = $_SERVER['HTTP_USER_AGENT'];
             $this->requestURI = $_SERVER['REQUEST_URI'];
             $this->hostName = $_SERVER['HTTP_HOST'];
             $this->remoteIP = $_SERVER['REMOTE_ADDR'];
@@ -166,6 +165,10 @@ class HttpRequest {
         $this->cookies = $_COOKIE;
         
         $this->scriptName = $_SERVER['SCRIPT_NAME'];
+        
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+            $this->userAgent = $_SERVER['HTTP_USER_AGENT'];
+        }
         
         if (isset($_SERVER['HTTP_ACCEPT_ENCODING'])) {
             $this->acceptEncoding = $_SERVER['HTTP_ACCEPT_ENCODING'];
