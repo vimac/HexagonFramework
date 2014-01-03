@@ -6,10 +6,10 @@ use \Hexagon\system\http\HttpRequest;
 use \Hexagon\system\http\HttpResponse;
 use \Hexagon\system\result\ValueHelper;
 use \Hexagon\system\result\ResultHelper;
-use \Hexagon\system\error\ErrorHandlerSetter;
+use \Hexagon\system\exception\ExceptionHandlerSetter;
 
 class Controller{
-    use Logging, ValueHelper, ResultHelper, ErrorHandlerSetter;
+    use Logging, ValueHelper, ResultHelper, ExceptionHandlerSetter;
     
     /**
      * @var HttpRequest

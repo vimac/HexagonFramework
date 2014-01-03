@@ -32,6 +32,14 @@ class Result {
     public $meta = NULL;
     public $contentType = NULL;
     
+    public function setValue($key, $val) {
+        $this->data[$key] = $val;
+    }
+    
+    public function getValue($key) {
+        return $this->data[$key];
+    }
+    
     /**
      * @param int $type Result type, use \Hexagon\system\result\Result\TYPE_* consts value
      * @param mixed $data Result data

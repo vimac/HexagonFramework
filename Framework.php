@@ -96,6 +96,7 @@ use \Hexagon\intercept\Interceptor;
 use \Hexagon\system\result\Processor;
 use \Hexagon\system\result\Result;
 use \Hexagon\system\security\Security;
+use \Hexagon\system\exception\ExceptionProcessor;
 
 final class Framework {
     
@@ -147,19 +148,17 @@ final class Framework {
         $config = $configClass::getInstance();
         Context::$appConfig = $config;
         
-        $this->setErrorHandler();
+        $this->setDefaultErrorHandler();
         
         self::_logDebug('Request for ' . Context::$appConfig->appName . ' start');
         
         return $this;
     }
     
-    public function setErrorHandler($cls = NULL) {
-        if (isset($cls) && isset(Context::$appConfig->defaultErrorHandler)) {
-            $handlerClass = Context::$appConfig->defaultErrorHandler;
+    private function setDefaultErrorHandler() {
+        if (isset(Context::$appConfig->defaultErrorHandler)) {
+            ExceptionProcessor::getInstance()->setHandler(Context::$appConfig->defaultErrorHandler);
         }
-        set_error_handler([$handlerClass, 'handleError']);
-        set_error_handler([$handlerClass, 'handleException']);
     }
     
     /**
