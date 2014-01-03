@@ -9,7 +9,12 @@ class BaseConfig {
     public $database = [];
     
     public $logs = [
-        [HEXAGON_LOG_LEVEL_ALL, HEXAGON_LOG_MATCH_ALL, '\Hexagon\system\log\FileLogAppender', 'log/all.log'],
+        [
+            'level' => HEXAGON_LOG_LEVEL_ALL,
+            'match' => HEXAGON_LOG_MATCH_ALL,
+            'appender' => '\Hexagon\system\log\FileLogAppender',
+            'params' => ['filename' => 'log/all.log']
+        ],
     ];
     
     public $charset = 'UTF-8';
@@ -18,7 +23,7 @@ class BaseConfig {
     public $uriDefault = 'welcome/index';
     public $uriSuffix = '';
     
-    public $errorHandler = '\Hexagon\system\error\BaseErrorHandler';
+    public $defaultErrorHandler = NULL;
 
     public $csrfProtection = TRUE;
     public $csrfTokenName = '_hexagon_csrf';

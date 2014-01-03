@@ -147,12 +147,19 @@ final class Framework {
         $config = $configClass::getInstance();
         Context::$appConfig = $config;
         
-//         set_error_handler([$config->errorHandler, 'handleError']);
-//         set_exception_handler([$config->errorHandler, 'handleException']);
-
+        $this->setErrorHandler();
+        
         self::_logDebug('Request for ' . Context::$appConfig->appName . ' start');
         
         return $this;
+    }
+    
+    public function setErrorHandler($cls = NULL) {
+        if (isset($cls) && isset(Context::$appConfig->defaultErrorHandler)) {
+            $handlerClass = Context::$appConfig->defaultErrorHandler;
+        }
+        set_error_handler([$handlerClass, 'handleError']);
+        set_error_handler([$handlerClass, 'handleException']);
     }
     
     /**
