@@ -46,7 +46,7 @@ class Dispatcher {
                 $params = [];
                 if (count($refParams) == 1 && current($refParams)->getClass()->isSubclassOf('\Hexagon\model\RequestModel')) {
                     $refClass = current($refParams)->getClass();
-                    $param = $refClass->newInstance();
+                    $requestModel = $refClass->newInstance($classNS, $method);
                     
                     $refCheckAllowedMethod = $refClass->getMethod('_checkAllowedMethod');
                     if (!$refCheckAllowedMethod->invoke(NULL)) {
@@ -58,10 +58,17 @@ class Dispatcher {
                         $varName = $var->getName();
                         
                         if ($request->hasParameter($varName)) {
-                            $param->$varName = $request->getParameter($varName);
+                            $requestModel->$varName = $request->getParameter($varName);
                         }
                     }
-                    $params[] = $param;
+
+                    $refCheckParameters = $refClass->getMethod('_checkParameters');
+                    $checkResult = $refCheckParameters->invoke($requestModel);
+                    if ($checkResult !== TRUE) {
+                        throw new MissingParameter($checkResult, $method, $classNS);
+                    }
+                    
+                    $params[] = $requestModel;
                 } else {
                     foreach ($refParams as $refParam) {
                         $paramName = $refParam->getName();
