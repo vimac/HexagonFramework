@@ -18,7 +18,7 @@ abstract class RequestModel extends Model {
     private $classNS;
     private $method;
     
-    public function __construct($classNS, $method) {
+    public function __construct($classNS = NULL, $method = NULL) {
         $this->classNS = $classNS;
         $this->method = $method;
     }
