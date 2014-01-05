@@ -10,6 +10,7 @@ use \Hexagon\system\log\Logging;
 use \Hexagon\Context;
 use \Hexagon\system\http\HttpRequest;
 use \Hexagon\system\http\HttpResponse;
+use \Hexagon\controller\Controller;
 
 class Dispatcher {
     use Logging;
@@ -34,6 +35,11 @@ class Dispatcher {
     }
     
     private function buildObject($classNS, $method) {
+        
+        if (substr($method, 0, 1) === '_') {
+            throw new MethodNameNotAllowed($method, $classNS);
+        }
+        
         $request = HttpRequest::getCurrentRequest();
         $refCon = new ReflectionClass($classNS);
         
@@ -90,7 +96,9 @@ class Dispatcher {
                 }
         
                 $instance = $refCon->newInstance($request, HttpResponse::getCurrentResponse());
+                $this->invokeMagicMethods('pre', $refCon, $instance, $params);
                 $ret = $refMethod->invokeArgs($instance, $params);
+                $this->invokeMagicMethods('post', $refCon, $instance, $params);
                 if (is_null($ret)) {
                     return NULL;
                 } else {
@@ -101,6 +109,13 @@ class Dispatcher {
             }
         } else {
             throw new MissingMethod($method, $classNS);
+        }
+    }
+    
+    private function invokeMagicMethods($name, ReflectionClass $reflect, Controller $instance, $params) {
+        $name = '_' . $name;
+        if ($reflect->hasMethod($name)) {
+            $reflect->getMethod($name)->invokeArgs($instance, $params);
         }
     }
     
@@ -146,6 +161,12 @@ class Dispatcher {
         return $this->buildObject($classNS, $method);
     }
     
+}
+
+class MethodNameNotAllowed extends Exception {
+    public function __construct($method, $classNS) {
+        parent::__construct('You are trying to call "' . $_SERVER['REQUEST_METHOD'] . '" to [' . $classNS . '->' . $method . '] , but the method name [' . $method . '] is not allowed in Hexagon Framework.', 400);
+    }
 }
 
 class MethodNotAllowd extends Exception {

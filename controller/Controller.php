@@ -8,7 +8,7 @@ use \Hexagon\system\result\ValueHelper;
 use \Hexagon\system\result\ResultHelper;
 use \Hexagon\system\exception\ExceptionHandlerSetter;
 
-class Controller{
+abstract class Controller{
     use Logging, ValueHelper, ResultHelper, ExceptionHandlerSetter;
     
     /**
@@ -25,6 +25,5 @@ class Controller{
         $this->request = $req;
         $this->response = $res;
     }
-    
     
 }
