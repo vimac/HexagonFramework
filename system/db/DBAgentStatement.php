@@ -43,7 +43,7 @@ class DBAgentStatement {
             $this->stmt = $dbagent->getPDOInstance()->prepare($sql);
         } catch (DBAgentException $e) {
             self::_logErr($e);
-            throw new DBAgentException('SQL prepared error [' . $e->getCode() . '], Message: ' . $e->getMessage() . '. SQL: ' . $sql);
+            throw new DBAgentException('SQL prepared error [' . $e->getCode() . '], Message: ' . $e->getMessage() . '. SQL: ' . $sql . PHP_EOL . ' With PDO Message:' . $dbagent->getPDOInstance()->errorInfo()[2]);
         }
     }
     
