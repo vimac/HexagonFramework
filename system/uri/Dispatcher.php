@@ -51,7 +51,7 @@ class Dispatcher {
 
                 $params = [];
                 $firstParam = current($refParams);
-                if (count($refParams) == 1 && is_object($firstParam) && $firstParam->getClass()->isSubclassOf('\Hexagon\model\RequestModel')) {
+                if (count($refParams) == 1 && $firstParam->getClass() !== NULL && $firstParam->getClass()->isSubclassOf('\Hexagon\model\RequestModel')) {
                     $refClass = $firstParam->getClass();
                     $requestModel = $refClass->newInstance($classNS, $method);
                     
