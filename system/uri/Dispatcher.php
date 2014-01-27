@@ -50,8 +50,9 @@ class Dispatcher {
                 $refParams = $refMethod->getParameters();
 
                 $params = [];
-                if (count($refParams) == 1 && current($refParams)->getClass()->isSubclassOf('\Hexagon\model\RequestModel')) {
-                    $refClass = current($refParams)->getClass();
+                $firstParam = current($refParams);
+                if (count($refParams) == 1 && $firstParam->getClass() !== NULL && $firstParam->getClass()->isSubclassOf('\Hexagon\model\RequestModel')) {
+                    $refClass = $firstParam->getClass();
                     $requestModel = $refClass->newInstance($classNS, $method);
                     
                     $refCheckAllowedMethod = $refClass->getMethod('_checkAllowedMethod');

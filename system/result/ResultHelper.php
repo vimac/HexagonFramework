@@ -5,81 +5,100 @@ namespace Hexagon\system\result;
 use Hexagon\system\http\HttpRequest;
 
 trait ResultHelper {
-    
+
     /**
      * this result type return a custom type
-     * @param $type int Result type, use \Hexagon\system\result\Result\TYPE_* consts value
-     * @param $data mixed Result data
-     * @param $meta mixed Result meta info, like page template location, or jpeg compression rate, see class doc for detail
-     * @param string $contentType Content type, default is <b>application/octet-stream</b>
-     * @param $lambda function Do some special things by this function, usually use in custom return type
+     * 
+     * @param $type int
+     *            Result type, use \Hexagon\system\result\Result\TYPE_* consts value
+     * @param $data mixed
+     *            Result data
+     * @param $meta mixed
+     *            Result meta info, like page template location, or jpeg compression rate, see class doc for detail
+     * @param string $contentType
+     *            Content type, default is <b>application/octet-stream</b>
+     * @param $lambda function
+     *            Do some special things by this function, usually use in custom return type
      * @return Result
      */
     protected static function _genCustomResult($data, $meta, $contentType = Result::CONTENT_BINARY, $lambda = NULL) {
         return new Result(Result::TYPE_USER_DEFINE, $data, $meta, $contentType, $lambda);
     }
-    
+
     /**
      * this result type use template engine to build a complete page.
-     * @param array $bindArrayData template tags data
-     * @param string $screenLocation screen relative path, NULL for auto
-     * @param string $layoutLocation template relative path, NULL for auto
-     * @param string $contentType content type
-     * @param function $lambda Do some special things by this function
+     * 
+     * @param array $bindArrayData
+     *            template tags data
+     * @param string $screenLocation
+     *            screen relative path, NULL for auto
+     * @param string $layoutLocation
+     *            template relative path, NULL for auto
+     * @param string $contentType
+     *            content type
+     * @param function $lambda
+     *            Do some special things by this function
      * @return Result
      */
     protected static function _genPageResult($bindArrayData, $screenLocation = NULL, $layoutLocation = NULL, $contentType = Result::CONTENT_HTML, $lambda = NULL) {
-        return new Result(Result::TYPE_PAGE, $bindArrayData, ['screen' => $screenLocation, 'layout' => $layoutLocation], $contentType, $lambda);
+        return new Result(Result::TYPE_PAGE, $bindArrayData, [
+                                                                'screen' => $screenLocation, 
+                                                                'layout' => $layoutLocation], $contentType, $lambda);
     }
-    
+
     /**
      * this result type return a simple text message to client side
-     * @param string $text
-     * @param string $contentType
-     * @param function $lambda
+     * 
+     * @param string $text            
+     * @param string $contentType            
+     * @param function $lambda            
      * @return Result
      */
     protected static function _genTextResult($text, $contentType = Result::CONTENT_TEXT, $lambda = NULL) {
         return new Result(Result::TYPE_TEXT, $text, NULL, $contentType, $lambda);
     }
-    
+
     /**
      * this result type return a simple text message to client side
-     * @param string $text
-     * @param string $contentType
-     * @param function $lambda
+     * 
+     * @param string $text            
+     * @param string $contentType            
+     * @param function $lambda            
      * @return Result
      */
     protected static function _genHTMLResult($html, $contentType = Result::CONTENT_HTML, $lambda = NULL) {
         return new Result(Result::TYPE_HTML, $html, NULL, $contentType, $lambda);
     }
-    
+
     /**
      * this result type return a simple json data to client side
-     * @param string $text
-     * @param string $contentType
-     * @param function $lambda
+     * 
+     * @param string $text            
+     * @param string $contentType            
+     * @param function $lambda            
      * @return Result
      */
     protected static function _genJSONResult($data, $contentType = Result::CONTENT_JSON, $lambda = NULL) {
         return new Result(Result::TYPE_JSON, $data, NULL, $contentType, $lambda);
     }
-    
+
     /**
      * this result type return a simple xml data to client side
-     * @param string $text
-     * @param string $contentType
+     * 
+     * @param string $text            
+     * @param string $contentType            
      * @return Result
      */
     protected static function _genXMLResult($data, $contentType = Result::CONTENT_XML, $lambda = NULL) {
         return new Result(Result::TYPE_XML, $data, NULL, $contentType);
     }
-    
+
     /**
      * this result type return a simple json or xml data to client side by detect client's accept content type
-     * @param string $text
-     * @param string $contentType
-     * @param function $lambda
+     * 
+     * @param string $text            
+     * @param string $contentType            
+     * @param function $lambda            
      * @return Result
      */
     protected static function _genRESTResult($data, $type = 'AUTO', $lambda = NULL) {
@@ -96,60 +115,80 @@ trait ResultHelper {
             throw new UnknownResultType();
         }
     }
-    
+
     /**
      * this result type return a png image generated by GD library
-     * @param resource $gdRes
-     * @param string $contentType
-     * @param function $lambda
+     * 
+     * @param resource $gdRes            
+     * @param string $contentType            
+     * @param function $lambda            
      * @return Result
      */
     protected static function _genPNGResult($gdRes, $contentType = Result::CONTENT_PNG, $lambda = NULL) {
         return new Result(Result::TYPE_PNG, $gdRes, NULL, $contentType, $lambda);
     }
-    
+
     /**
      * this result type return a jpeg image generated by GD library
-     * @param resource $gdRes
-     * @param string $contentType
-     * @param number $jpegQuality
-     * @param function $lambda
+     * 
+     * @param resource $gdRes            
+     * @param string $contentType            
+     * @param number $jpegQuality            
+     * @param function $lambda            
      * @return Result
      */
     protected static function _genJPEGResult($gdRes, $contentType = Result::CONTENT_JPEG, $jpegQuality = 75, $lambda = NULL) {
-        return new Result(Result::TYPE_JPEG, $gdRes, ['quality' => $jpegQuality], $contentType, $lambda);
+        return new Result(Result::TYPE_JPEG, $gdRes, [
+                                                        'quality' => $jpegQuality], $contentType, $lambda);
     }
-    
+
     /**
      * this result type return a gif image generated by GD library
-     * @param resource $gdRes
-     * @param string $contentType
-     * @param function $lambda
+     * 
+     * @param resource $gdRes            
+     * @param string $contentType            
+     * @param function $lambda            
      * @return Result
      */
     protected static function _genGIFResult($gdRes, $contentType = Result::CONTENT_GIF, $lambda = NULL) {
         return new Result(Result::TYPE_GIF, $gdRes, NULL, $contentType, $lambda);
     }
-    
+
     /**
      * this result is nothing, usually use in a cli task
+     * 
      * @return Result
      */
     protected static function _genNoneResult($contentType = Result::TYPE_HTML) {
         return new Result(Result::TYPE_NONE, NULL, NULL, $contentType, NULL);
     }
-    
+
     /**
      * redirect to another url
-     * @param string $url
-     * @param number $method number in 3xx: <br />
-     *                       301 - Moved Permanently <br />
-     *                       302 - Found <br />
-     *                       303 - See Other <br />
-     *                       307 - Temporary Redirect <br />
+     * 
+     * @param string $url            
+     * @param number $method
+     *            number in 3xx: <br />
+     *            301 - Moved Permanently <br />
+     *            302 - Found <br />
+     *            303 - See Other <br />
+     *            307 - Temporary Redirect <br />
      */
     protected static function _redirect($uri, $code = 302) {
         header('Location: ' . $uri, TRUE, $code);
         return self::_genNoneResult();
     }
+
+    protected static function _alertRedirect($msg, $url = '') {
+        $str = '<script type="text/javascript">';
+        $str .= "alert('" . $msg . "');";
+        
+        if ($url != '') {
+            $str .= "window.location.href='{$url}';";
+        } else {
+            $str .= "window.history.back();";
+        }
+        echo $str .= '</script>';
+    }
+
 }
