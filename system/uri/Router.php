@@ -89,6 +89,15 @@ class Router {
                     break;
             }
         }
+        
+        $urlInfo = parse_url($config->appUrl);
+        if (isset($urlInfo['path']) && $urlInfo['path'] != '/') {
+            $uriPrefix = rtrim($urlInfo['path'], '/');
+            $uriPrefixLength = strlen($uriPrefix);
+            if (substr($uri, 0, $uriPrefixLength) === $uriPrefix) {
+                $uri = substr($uri, $uriPrefixLength);
+            }
+        }
 
         $uri = preg_replace('/\/+/', '/', $uri);
         
