@@ -143,7 +143,7 @@ final class UploadHelper {
             if (isset($filterFunc)) {
                 if (!$filterFunc($file)) {
                     break;
-                } 
+                }
             }
             $newpath = call_user_func($func, $dir, $file['name']);
             if (!empty($newpath)) {
