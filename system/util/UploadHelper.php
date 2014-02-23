@@ -135,7 +135,7 @@ final class UploadHelper {
         $result = [];
         foreach ($_FILES as $key => $file) {
             if (!empty($allowedExtensions)) {
-                $ext = pathinfo($file['name'], PATHINFO_EXTENSION)['extension'];
+                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
                 if (!in_array($ext, $allowedExtensions)) {
                     break;
                 }
