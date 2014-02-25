@@ -113,7 +113,7 @@ class Dispatcher {
         }
     }
     
-    private function invokeMagicMethods($name, ReflectionClass $reflect, Controller $instance, $params) {
+    private function invokeMagicMethods($name, ReflectionClass $reflect, $instance, $params) {
         $name = '_' . $name;
         if ($reflect->hasMethod($name)) {
             $reflect->getMethod($name)->invokeArgs($instance, $params);

@@ -106,10 +106,11 @@ final class UploadHelper {
     }
 
     public function moveFilesToDirectory($dir, $namePolicy = self::UPLOAD_FILE_OVERRIDES_OLD, $allowedExtensions = [], Callable $filterFunc = NULL) {
-        $dir = realpath($dir);
         if (!file_exists($dir)) {
             @mkdir($dir);
         }
+        
+        $dir = realpath($dir);
         
         if (!file_exists($dir) || !is_writable($dir)) {
             throw new UploadDirectoryCannotBeAccess();
