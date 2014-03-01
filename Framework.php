@@ -23,7 +23,7 @@ final class Context {
     public static $appBasePath = '';
     public static $appEntryName = '';
     public static $uri = '';
-    public static $developmentMode = FALSE;
+    public static $mode = FALSE;
     
     public static $targetClassNamespace;
     public static $targetClassName;
@@ -130,17 +130,21 @@ final class Framework {
         Context::$appNS = $appNS;
         Context::$appBasePath = $appBasePath;
         Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
-        Context::$developmentMode = file_exists($appBasePath . DIRECTORY_SEPARATOR . 'dev.lock');
         
         if (isset($defConfig)) {
             $configClass = $defConfig;
         } else {
-            if (Context::$developmentMode &&
+            $modeLock = current(glob($appBasePath . DIRECTORY_SEPARATOR . '*.lock'));
+            if ($modeLock) {
+                $mode = ucfirst(pathinfo($modeLock, PATHINFO_FILENAME));
+            }
+            if ($mode &&
             file_exists(
                     $appBasePath . DIRECTORY_SEPARATOR . 'app' .
                     DIRECTORY_SEPARATOR . 'config' .
-                    DIRECTORY_SEPARATOR . 'DevConfig.php')) {
-                $configClass = $appNS . '\app\config\DevConfig';
+                    DIRECTORY_SEPARATOR . $mode . 'Config.php')) {
+                $configClass = $appNS . '\app\config\\' . $mode . 'Config';
+                Context::$mode = $mode;
             } else {
                 $configClass = $appNS . '\app\config\Config';
             }
