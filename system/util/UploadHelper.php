@@ -164,7 +164,7 @@ final class UploadHelper {
 class UploadDirectoryCannotBeAccess extends Exception {
 
     public function __construct() {
-        parent::__construct('No write permission or space?');
+        parent::__construct('Upload directory cannot be access?');
     }
 
 }
@@ -172,7 +172,7 @@ class UploadDirectoryCannotBeAccess extends Exception {
 class UploadFileCannotBeMoved extends Exception {
 
     public function __construct() {
-        parent::__construct('No write permission or space?');
+        parent::__construct('Upload file cannot be moved?');
     }
 
 }
