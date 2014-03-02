@@ -137,6 +137,8 @@ final class Framework {
             $modeLock = current(glob($appBasePath . DIRECTORY_SEPARATOR . '*.lock'));
             if ($modeLock) {
                 $mode = ucfirst(pathinfo($modeLock, PATHINFO_FILENAME));
+            } else {
+                $mode = FALSE;
             }
             if ($mode &&
             file_exists(
