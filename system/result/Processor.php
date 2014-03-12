@@ -146,7 +146,7 @@ class Processor {
     
     protected function processJPEG(Result $result) {
         if (isset($result->meta['quality'])) {
-            imagejpeg($result->data, $result->meta['quality']);
+            imagejpeg($result->data, NULL, $result->meta['quality']);
         } else {
             imagejpeg($result->data);
         }

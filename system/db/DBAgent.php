@@ -197,7 +197,9 @@ class DBAgent {
         
     
     public function beginTransaction() {
-        return $this->getPDOInstance()->beginTransaction();
+        $pdo = $this->getPDOInstance();
+        $pdo->query('set autocommit=0');
+        return $pdo->beginTransaction();
     }
     
     public function commit() {

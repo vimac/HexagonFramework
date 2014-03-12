@@ -23,7 +23,7 @@ final class Context {
     public static $appBasePath = '';
     public static $appEntryName = '';
     public static $uri = '';
-    public static $developmentMode = FALSE;
+    public static $mode = FALSE;
     
     public static $targetClassNamespace;
     public static $targetClassName;
@@ -62,7 +62,7 @@ final class Context {
                     require $dirClsFile;
                     return;
                 } else {
-                    trigger_error('Class [' . $cls . '] not found, try to include file: [' . $clsFile . ', ' . $dirClsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
+                    trigger_error('Request [' . $_SERVER['REQUEST_URI'] . '] failed, cause class [' . $cls . '] not found, try to include file: [' . $clsFile . ', ' . $dirClsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
                 }
             }
             trigger_error('Class [' . $cls . '] not found, try to include file: [' . $clsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
@@ -130,17 +130,23 @@ final class Framework {
         Context::$appNS = $appNS;
         Context::$appBasePath = $appBasePath;
         Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
-        Context::$developmentMode = file_exists($appBasePath . DIRECTORY_SEPARATOR . 'dev.lock');
         
         if (isset($defConfig)) {
             $configClass = $defConfig;
         } else {
-            if (Context::$developmentMode &&
+            $modeLock = current(glob($appBasePath . DIRECTORY_SEPARATOR . '*.lock'));
+            if ($modeLock) {
+                $mode = ucfirst(pathinfo($modeLock, PATHINFO_FILENAME));
+            } else {
+                $mode = FALSE;
+            }
+            if ($mode &&
             file_exists(
                     $appBasePath . DIRECTORY_SEPARATOR . 'app' .
                     DIRECTORY_SEPARATOR . 'config' .
-                    DIRECTORY_SEPARATOR . 'DevConfig.php')) {
-                $configClass = $appNS . '\app\config\DevConfig';
+                    DIRECTORY_SEPARATOR . $mode . 'Config.php')) {
+                $configClass = $appNS . '\app\config\\' . $mode . 'Config';
+                Context::$mode = $mode;
             } else {
                 $configClass = $appNS . '\app\config\Config';
             }
