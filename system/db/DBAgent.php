@@ -206,6 +206,10 @@ class DBAgent {
         return $this->getPDOInstance()->commit();
     }
     
+    public function rollback() {
+    	return $this->getPDOInstance()->rollBack();
+    }
+    
 }
 
 class DBAgentException extends \Exception{
