@@ -18,12 +18,13 @@ trait Logging {
     protected static function _log($msg, $level = HEXAGON_LOG_LEVEL_DEBUG, $strLevel = 'DBG') {
         $config = Context::$appConfig;
         $trace = debug_backtrace(false)[2];
-        
         $filter = LogFilter::getInstance();
-        
+
         $class = $trace['class'];
         $type = $trace['type'];
         $method = $trace['function'];
+        $line = isset($trace['line']) ? $trace['line'] : 0;
+        $file = isset($trace['file']) ? basename($trace['file']) : '';
         
         $logs = $filter->getLoggerInfo($class, $method);
         
@@ -32,7 +33,8 @@ trait Logging {
             if ($level & $logLevel) {
                 LogAppender::getInstance($log['appender'], $log['params'])->append(
                     '[' . $strLevel . '] ' .
-                    '[' . $trace['class'] . $trace['type'] . $trace['function'] . '] ' .
+                    '[' . $class . $type . $method . '] ' .
+                    ($line > 0 ? '[' . $file . ':' . $line .'] ' : '' ) .
                     self::_dumpObj($msg)
                 );
             }
@@ -76,6 +78,20 @@ trait Logging {
      */
     protected static function _logFatal($msg) {
         self::_log($msg, HEXAGON_LOG_LEVEL_FATAL, 'FAT');
+    }
+    
+    /**
+     * Log notice level message
+     */
+    protected static function _logNotice($msg) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_NOTICE, 'NOTICE');
+    }
+    
+    /**
+     * Log emergency level message
+     */
+    protected static function _logEmergency($msg) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_NOTICE, 'EMERGENCY');
     }
     
     /**
