@@ -81,7 +81,19 @@ final class Context {
             $path = self::$nsPaths[$root] . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $ns);
             return $path;
         } else {
-            throw new Exception('Namespace [' . $root . '] not found');
+            throw new \Exception('Namespace [' . $root . '] not found');
+        }
+    }
+    
+    public static function initVendorAutoload() {
+        $vendorPath = self::$appBasePath . DIRECTORY_SEPARATOR . 'app'
+                . DIRECTORY_SEPARATOR . 'lib'
+                . DIRECTORY_SEPARATOR . 'vendor'
+                . DIRECTORY_SEPARATOR . 'autoload.php';
+        if (file_exists($vendorPath)) {
+            require $vendorPath;
+        } else {
+            throw new \Exception('Vendor autoload file [' . $vendorPath . '] not found');
         }
     }
 }
