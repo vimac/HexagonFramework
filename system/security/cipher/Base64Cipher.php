@@ -11,11 +11,11 @@ namespace Hexagon\system\security\cipher;
 class Base64Cipher extends Cipher{
     
     public function encrypt($text) {
-        echo base64_encode($text);
+        return base64_encode($text);
     }
     
     public function decrypt($text) {
-        echo base64_decode($text, TRUE);
+        return base64_decode($text, TRUE);
     }
     
 }
