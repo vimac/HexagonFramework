@@ -247,9 +247,9 @@ final class Framework {
     
     public function stop($code = 0, $msg = '', $func = NULL) {
         if (!empty($msg)) {
-            self::_logDebug('End the response. msg: ' . $msg);            
+            self::_logInfo('End the response. msg: ' . $msg);            
         } else {
-            self::_logDebug('End the response.');
+            self::_logInfo('End the response.');
         }
         die;
     }

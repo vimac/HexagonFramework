@@ -3,6 +3,7 @@
 namespace Hexagon\system\log;
 
 use \Hexagon\Context;
+use \Exception;
 
 /**
  * Implementation of the logging system
@@ -101,8 +102,12 @@ trait Logging {
      */
     protected static function _dumpObj($obj) {
         if (is_object($obj) || is_array($obj)) {
-            $text = print_r($obj, true);
-            $text = preg_replace('/\s+/', " ", $text);
+            if ($obj instanceof Exception) {
+                $text = $obj->getMessage() . PHP_EOL . $obj->getTraceAsString();
+            } else {
+                $text = print_r($obj, TRUE);
+                $text = preg_replace('/\s+/', " ", $text);
+            }
             return $text;
         } else {
             return $obj;
