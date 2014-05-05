@@ -86,14 +86,17 @@ final class Context {
     }
     
     public static function initVendorAutoload() {
-        $vendorPath = self::$appBasePath . DIRECTORY_SEPARATOR . 'app'
-                . DIRECTORY_SEPARATOR . 'lib'
-                . DIRECTORY_SEPARATOR . 'vendor'
-                . DIRECTORY_SEPARATOR . 'autoload.php';
-        if (file_exists($vendorPath)) {
-            require $vendorPath;
-        } else {
-            throw new \Exception('Vendor autoload file [' . $vendorPath . '] not found');
+        static $loaded = FALSE;
+        if (!$loaded) {
+            $vendorPath = self::$appBasePath . DIRECTORY_SEPARATOR . 'app'
+                    . DIRECTORY_SEPARATOR . 'lib'
+                    . DIRECTORY_SEPARATOR . 'vendor'
+                    . DIRECTORY_SEPARATOR . 'autoload.php';
+            if (file_exists($vendorPath)) {
+                require $vendorPath;
+            } else {
+                throw new \Exception('Vendor autoload file [' . $vendorPath . '] not found');
+            }
         }
     }
 }
