@@ -81,7 +81,20 @@ final class Context {
             $path = self::$nsPaths[$root] . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $ns);
             return $path;
         } else {
-            throw new Exception('Namespace [' . $root . '] not found');
+            throw new \Exception('Namespace [' . $root . '] not found');
+        }
+    }
+    
+    public static function initVendorAutoload() {
+        static $loaded = FALSE;
+        if (!$loaded) {
+            $vendorPath = self::$appBasePath . DIRECTORY_SEPARATOR . 'app'
+                    . DIRECTORY_SEPARATOR . 'lib'
+                    . DIRECTORY_SEPARATOR . 'vendor'
+                    . DIRECTORY_SEPARATOR . 'autoload.php';
+            if (file_exists($vendorPath)) {
+                require $vendorPath;
+            }
         }
     }
 }
@@ -153,6 +166,8 @@ final class Framework {
         }
         $config = $configClass::getInstance();
         Context::$appConfig = $config;
+        
+        Context::initVendorAutoload();
         
         $this->setDefaultErrorHandler();
         
@@ -235,9 +250,9 @@ final class Framework {
     
     public function stop($code = 0, $msg = '', $func = NULL) {
         if (!empty($msg)) {
-            self::_logDebug('End the response. msg: ' . $msg);            
+            self::_logInfo('End the response. msg: ' . $msg);            
         } else {
-            self::_logDebug('End the response.');
+            self::_logInfo('End the response.');
         }
         die;
     }
