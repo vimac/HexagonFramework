@@ -94,8 +94,6 @@ final class Context {
                     . DIRECTORY_SEPARATOR . 'autoload.php';
             if (file_exists($vendorPath)) {
                 require $vendorPath;
-            } else {
-                throw new \Exception('Vendor autoload file [' . $vendorPath . '] not found');
             }
         }
     }
@@ -168,6 +166,8 @@ final class Framework {
         }
         $config = $configClass::getInstance();
         Context::$appConfig = $config;
+        
+        Context::initVendorAutoload();
         
         $this->setDefaultErrorHandler();
         
