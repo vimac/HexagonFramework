@@ -29,7 +29,7 @@ class FileLogAppender{
             @$this->f = fopen($this->logFile, 'a');
         }
         @flock($this->f, LOCK_EX);
-        @fwrite($this->f, date('[Y-m-d H:i:s] ') . $msg . "\n");
+        @fwrite($this->f, date('[Y-m-d H:i:s] ') . $msg . PHP_EOL);
         @flock($this->f, LOCK_UN);
     }
     
