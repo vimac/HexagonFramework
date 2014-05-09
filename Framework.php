@@ -88,12 +88,18 @@ final class Context {
     public static function initVendorAutoload() {
         static $loaded = FALSE;
         if (!$loaded) {
-            $vendorPath = self::$appBasePath . DIRECTORY_SEPARATOR . 'app'
-                    . DIRECTORY_SEPARATOR . 'lib'
-                    . DIRECTORY_SEPARATOR . 'vendor'
-                    . DIRECTORY_SEPARATOR . 'autoload.php';
-            if (file_exists($vendorPath)) {
-                require $vendorPath;
+            $vendorPath = [
+                self::$appBasePath . DIRECTORY_SEPARATOR
+                . 'app' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR
+                . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php',
+                self::$appBasePath . DIRECTORY_SEPARATOR
+                . 'external' . DIRECTORY_SEPARATOR
+                . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php'
+            ];
+            foreach ($vendorPath as $path) {
+                if (file_exists($path)) {
+                    require $path;
+                }
             }
         }
     }
