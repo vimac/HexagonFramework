@@ -3,6 +3,7 @@
 namespace Hexagon\system\result;
 
 use Hexagon\system\http\HttpRequest;
+use Hexagon\Framework;
 
 trait ResultHelper {
 
@@ -177,6 +178,10 @@ trait ResultHelper {
     protected static function _redirect($uri, $code = 302) {
         header('Location: ' . $uri, TRUE, $code);
         return self::_genNoneResult();
+    }
+    
+    protected static function _ignoreFrameworkResult() {
+        Framework::getInstance()->stop(0);
     }
 
     protected static function _alertRedirect($msg, $url = '') {

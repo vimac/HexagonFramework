@@ -205,10 +205,6 @@ final class Framework {
         }
         Context::$uri = $uri;
 
-        if (!HEXAGON_CLI_MODE) {
-            session_start();
-        }
-        
         if ($outputBuffer) {
             ob_start();
         }
