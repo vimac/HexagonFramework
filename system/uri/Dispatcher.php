@@ -65,7 +65,7 @@ class Dispatcher {
             $firstParam = current($refParams);
             
             if (count($refParams) === 1 && $firstParam->getClass() !== NULL && $firstParam->getClass()->isSubclassOf('\Hexagon\model\RequestModel')) {
-                $params = $this->buildMethodRequestModelParameters($refClass, $firstParam, $method, $classNS, $request);
+                $params = $this->buildMethodRequestModelParameters($firstParam, $method, $classNS, $request);
             } else {
                 $params = $this->buildMethodArrayParameters($refParams, $request);
             }
@@ -106,7 +106,7 @@ class Dispatcher {
         return $params;
     }
 
-    private function buildMethodRequestModelParameters($refClass, $firstParam, $method, $classNS, HttpRequest $request) {
+    private function buildMethodRequestModelParameters($firstParam, $method, $classNS, HttpRequest $request) {
         $refClass = $firstParam->getClass();
         $requestModel = $refClass->newInstance($classNS, $method);
         
