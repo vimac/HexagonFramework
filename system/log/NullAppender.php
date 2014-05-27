@@ -7,10 +7,9 @@ namespace Hexagon\system\log;
  * 
  * @author mac
  */
-class StandardOutputAppender {
+class NullAppender {
 
     public function append($msg) {
-        fwrite(STDOUT, date('[Y-m-d H:i:s] ') . $msg . PHP_EOL);
     }
 
 }

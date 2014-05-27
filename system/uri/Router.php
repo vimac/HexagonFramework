@@ -12,16 +12,6 @@ class Router {
     use Logging;
     
     /**
-     * @var \Hexagon\config\BaseConfig
-     */
-    private $config;
-    
-    /**
-     * @var HttpRequest
-     */
-    private $request;
-    
-    /**
      * An instance of this class
      * @var Router
      */
@@ -54,19 +44,10 @@ class Router {
         return $uri;
     }
     
-    /**
-     * Resolve
-     * 
-     * @return array
-     */
-    public function resolveURI() {
+    private function parseURI() {
         $config = Context::$appConfig;
         $request = HttpRequest::getCurrentRequest();
-        
-        $this->config = $config;
-        $this->request = $request;
-        
-        $uri = null;
+        $uri = NULL;
         
         if ($config->uriProtocol === HEXAGON_URI_PROTOCOL_AUTO) {
             $uri = $request->getPathInfo();
@@ -98,7 +79,32 @@ class Router {
                 $uri = substr($uri, $uriPrefixLength);
             }
         }
-
+        
+        return $uri;
+    }
+    
+    private function checkInvalid($uri) {
+        static $reAllowedChars = '/[^a-zA-Z0-9_\/]/';
+        $matches = [];
+        if (preg_match($reAllowedChars, $uri, $matches) > 0) {
+            throw new InvalidURI($uri);
+        }
+    }
+    
+    /**
+     * Resolve
+     * 
+     * @return array
+     */
+    public function resolveURI($uri = NULL) {
+        $config = Context::$appConfig;
+        
+        if (!isset($uri)) {
+            $uri = $this->parseURI();
+        }
+        
+        $this->checkInvalid($uri);
+        
         $uri = preg_replace('/\/+/', '/', $uri);
         
         if (!$uri || $uri === '/' || $uri === '/'. Context::$appEntryName) {
@@ -108,6 +114,10 @@ class Router {
         $uriParts = explode('/', $uri);
         if (count($uriParts) < 3) {
             $uri = dirname($config->uriDefault) . '/' . array_pop($uriParts);
+        }
+        
+        if ($uri[0] !== '/') {
+            $uri = '/' . $uri;
         }
         
         if (substr($uri, -1) === '/') {

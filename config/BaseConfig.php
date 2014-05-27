@@ -12,8 +12,8 @@ class BaseConfig {
         [
             'level' => HEXAGON_LOG_LEVEL_ALL,
             'match' => HEXAGON_LOG_MATCH_ALL,
-            'appender' => '\Hexagon\system\log\FileLogAppender',
-            'params' => ['filename' => 'log/all.log']
+            'appender' => '\Hexagon\system\log\NullAppender',
+            'params' => []
         ],
     ];
     

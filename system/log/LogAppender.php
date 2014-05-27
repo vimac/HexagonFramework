@@ -4,10 +4,10 @@ namespace Hexagon\system\log;
 
 use \ReflectionClass;
 
-class LogAppender{
-    
+class LogAppender {
+
     private static $appenders = null;
-    
+
     /**
      * Factory
      */
@@ -20,4 +20,5 @@ class LogAppender{
         }
         return self::$appenders[$key];
     }
+
 }

@@ -29,6 +29,8 @@ final class Context {
     public static $targetClassName;
     public static $targetClassMethod;
     
+    public static $testing = FALSE;
+    
     /**
      * @var \Hexagon\config\BaseConfig
      */
@@ -38,34 +40,36 @@ final class Context {
         $clsNS = explode('\\', $cls);
         $base = array_shift($clsNS);
         $name = implode(DIRECTORY_SEPARATOR, $clsNS);
-        $path = self::$nsPaths[$base];
-        $clsFile = $path . DIRECTORY_SEPARATOR . $name . '.php';
-        
-        if (substr($name, -10) === 'Controller') {
-            $isController = TRUE;
-        } else {
-            $isController = FALSE;
-        }
-        
-        if (file_exists($clsFile)) {
-            require $clsFile;
-        } else {
-            if ($isController) {
-                $lowName = strtolower(substr($name, 0, -10));
-                $clsNS = explode('/', $lowName);
-                $filename = ucfirst($clsNS[count($clsNS) - 1]);
-
-                $name = implode(DIRECTORY_SEPARATOR, $clsNS);
-                $dirClsFile = $path . DIRECTORY_SEPARATOR . $name . DIRECTORY_SEPARATOR . $filename . '.php';
-                
-                if (file_exists($dirClsFile)) {
-                    require $dirClsFile;
-                    return;
-                } else {
-                    trigger_error('Request [' . $_SERVER['REQUEST_URI'] . '] failed, cause class [' . $cls . '] not found, try to include file: [' . $clsFile . ', ' . $dirClsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
-                }
+        @$path = self::$nsPaths[$base];
+        if (!empty($path)) {
+            $clsFile = $path . DIRECTORY_SEPARATOR . $name . '.php';
+            
+            if (substr($name, -10) === 'Controller') {
+                $isController = TRUE;
+            } else {
+                $isController = FALSE;
             }
-            trigger_error('Class [' . $cls . '] not found, try to include file: [' . $clsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
+            
+            if (file_exists($clsFile)) {
+                require $clsFile;
+            } else {
+                if ($isController) {
+                    $lowName = strtolower(substr($name, 0, -10));
+                    $clsNS = explode('/', $lowName);
+                    $filename = ucfirst($clsNS[count($clsNS) - 1]);
+    
+                    $name = implode(DIRECTORY_SEPARATOR, $clsNS);
+                    $dirClsFile = $path . DIRECTORY_SEPARATOR . $name . DIRECTORY_SEPARATOR . $filename . '.php';
+                    
+                    if (file_exists($dirClsFile)) {
+                        require $dirClsFile;
+                        return;
+                    } else {
+                        trigger_error('Request [' . $_SERVER['REQUEST_URI'] . '] failed, cause class [' . $cls . '] not found, try to include file: [' . $clsFile . ', ' . $dirClsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
+                    }
+                }
+                trigger_error('Class [' . $cls . '] not found, try to include file: [' . $clsFile . '] namespace paths: [' . implode(', ', Context::$nsPaths) . ']', E_USER_ERROR);
+            }
         }
     }
     
@@ -144,11 +148,12 @@ final class Framework {
      * @param string $appBasePath application root path
      * @param string $defConfig defined configclass fullname (must include the namespace), NULL for default
      */
-    public function initApp($appNS, $appBasePath, $defConfig = NULL) {
+    public function initApp($appNS, $appBasePath, $defConfig = NULL, $testMode = FALSE) {
         Context::registerNS($appNS, $appBasePath);
         Context::$appNS = $appNS;
         Context::$appBasePath = $appBasePath;
         Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
+        Context::$testing = $testMode;
         
         if (isset($defConfig)) {
             $configClass = $defConfig;
@@ -173,11 +178,13 @@ final class Framework {
         $config = $configClass::getInstance();
         Context::$appConfig = $config;
         
-        Context::initVendorAutoload();
-        
-        $this->setDefaultErrorHandler();
-        
         self::_logDebug('Request for ' . Context::$appConfig->appName . ' start');
+        
+        Context::initVendorAutoload();
+
+        if (!$testMode) {
+            $this->setDefaultErrorHandler();
+        }
         
         return $this;
     }
