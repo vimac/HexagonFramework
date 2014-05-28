@@ -9,7 +9,7 @@ use \Hexagon\system\uri\Router;
 use \Exception;
 use \ReflectionClass;
 
-TestBootstrap::registerTestNamespace(__NAMESPACE__, 'Hexagon\config\BaseConfig');
+TestBootstrap::initForTest(__NAMESPACE__, 'Hexagon\config\BaseConfig');
 
 class RouterTest extends PHPUnit_Framework_TestCase {
     

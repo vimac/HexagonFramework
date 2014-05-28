@@ -19,13 +19,13 @@ class TestBootstrap {
         return $appDir;
     }
     
-    public static function registerTestNamespace($ns, $configClass = NULL) {
+    public static function initForTest($namespace, $configClass = NULL) {
         require __DIR__ . DIRECTORY_SEPARATOR . 'Framework.php';
-        $arrayNS = explode('\\', $ns);
+        $arrayNS = explode('\\', $namespace);
         $appNS = array_shift($arrayNS);
         $trace = debug_backtrace();
         $appDir = array_shift($trace)['file'];
-        $appBasePath = self::getNSRootByFilename($ns, $appDir);
+        $appBasePath = self::getNSRootByFilename($namespace, $appDir);
         Framework::getInstance()->initApp($appNS, $appBasePath, $configClass, TRUE);
     }
     
