@@ -23,7 +23,7 @@ class BaseConfig {
     public $uriDefault = 'welcome/index';
     public $uriSuffix = '';
     
-    public $defaultErrorHandler = '\Hexagon\system\exception\defaultExceptionHandler';
+    public $defaultErrorHandler = '\Hexagon\system\exception\DefaultExceptionHandler';
     
     public $csrfProtection = TRUE;
     public $csrfTokenName = '_hexagon_csrf';

@@ -10,7 +10,7 @@ use \Exception;
  *
  * @author jim9@KDays
  */
-class defaultExceptionHandler extends ExceptionHandler {
+class DefaultExceptionHandler extends ExceptionHandler {
     public function handleException(Exception $ex) {
         $trace = $ex->getTrace();
 
@@ -62,7 +62,7 @@ class defaultExceptionHandler extends ExceptionHandler {
         if (HEXAGON_CLI_MODE) {
             fwrite(STDOUT, date('[Y-m-d H:i:s] '). $message ."($file:$line)". PHP_EOL);
         } else {
-            require(Context::$frameworkPath."/system/exception/defaultExceptionTemplate.htm");
+            require(Context::$frameworkPath."/system/exception/DefaultExceptionTemplate.htm");
             exit;
         }
     }
