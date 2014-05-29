@@ -45,6 +45,23 @@ class ExceptionProcessor {
             throw $ex;
         }
     }
+
+    public function processFatal() {
+        $lastError = error_get_last();
+        $dispArr = [E_ERROR, E_PARSE, E_CORE_ERROR];
+
+        if (!empty($lastError) && isset($this->handlerClass)) {
+            if (in_array($lastError['type'], $dispArr)) {
+                $clssName = $this->handlerClass;
+                $handler = new $this->handlerClass;
+
+                if (method_exists($handler, "handleFatal")) {
+                    $handler->handleFatal($lastError['type'], $lastError['message'], 
+                        $lastError['file'], $lastError['line']);
+                }
+            }
+        }
+    }
     
     public function setHandler($handlerClass) {
         /**
@@ -53,6 +70,7 @@ class ExceptionProcessor {
         if (!isset($this->handlerClass)) {
             set_error_handler([self::$p, 'processError']);
             set_exception_handler([self::$p, 'processException']);
+            register_shutdown_function([self::$p, 'processFatal']);
         }
         
         $this->handlerClass = $handlerClass;
