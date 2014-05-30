@@ -4,7 +4,7 @@
 <!--<?php print <<<EOT
 -->	
 	<meta charset="utf-8" />
-	<title>Hexagon Framework Error</title>
+	<title>Hexagon Framework Exception Trace</title>
 
 <style>
 body, ul, h1, h2{ margin: 0; padding: 0;}
