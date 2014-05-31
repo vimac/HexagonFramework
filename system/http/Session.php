@@ -15,7 +15,9 @@ class Session {
     private static $session;
 
     public static function init($sessionId = NULL) {
-        self::$session = new Session();
+        if (!isset(self::$session)) {
+            self::$session = new Session();
+        }
         if (php_sapi_name() !== 'cli') {
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
@@ -33,6 +35,14 @@ class Session {
         }
         return self::$session;
     }
+
+    public static function getInstance() {
+        return self::init();
+    }
+
+    private function __construct() {
+        // prevent public access
+    }
     
     public function getSessionId() {
         return $this->sessionId;
@@ -48,6 +58,30 @@ class Session {
 
     public function getSessionCookieParams() {
         return session_get_cookie_params();
+    }
+
+    public function getSession($key) {
+        if (isset($_SESSION[$key])) {
+            return $_SESSION[$key];
+        } else {
+            return NULL;
+        }
+    }
+
+    public function setSession($key, $value) {
+        $_SESSION[$key] = $value;
+    }
+
+    public function deleteSession($key) {
+        unset($_SESSION[$key]);
+    }
+
+    public function convertSessionArrayToModel($fullObjectName) {
+        $obj = new $fullObjectName();
+        foreach ($_SESSION as $key => $val) {
+            $obj->$key = $val;
+        }
+        return $obj;
     }
 
 }
