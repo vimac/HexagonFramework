@@ -10,7 +10,6 @@ use \Hexagon\system\log\Logging;
 use \Hexagon\Context;
 use \Hexagon\system\http\HttpRequest;
 use \Hexagon\system\http\HttpResponse;
-use \Hexagon\controller\Controller;
 
 class Dispatcher {
     use Logging;
@@ -20,6 +19,10 @@ class Dispatcher {
     public $className = null;
 
     public $classNS = null;
+
+    const TYPE_WEB_CONTROLLER = 0;
+
+    const TYPE_CLI_TASK = 1;
 
     /**
      *
@@ -38,7 +41,7 @@ class Dispatcher {
         return self::$d;
     }
 
-    private function buildObject($classNS, $method) {
+    private function doAction($classNS, $method) {
         if ($method[0] === '_') {
             throw new MethodNameNotAllowed($method, $classNS);
         }
@@ -67,7 +70,7 @@ class Dispatcher {
             if (count($refParams) === 1 && $firstParam->getClass() !== NULL && $firstParam->getClass()->isSubclassOf('\Hexagon\model\RequestModel')) {
                 $params = $this->buildMethodRequestModelParameters($firstParam, $method, $classNS, $request);
             } else {
-                $params = $this->buildMethodArrayParameters($refParams, $request);
+                $params = $this->buildMethodArrayParameters($refParams, $method, $classNS, $request);
             }
             
             $instance = $refCon->newInstance($request, HttpResponse::getCurrentResponse());
@@ -84,7 +87,7 @@ class Dispatcher {
         }
     }
 
-    private function buildMethodArrayParameters($refParams, HttpRequest $request) {
+    private function buildMethodArrayParameters($refParams, $method, $classNS, HttpRequest $request) {
         $params = [];
         foreach ($refParams as $refParam) {
             $paramName = $refParam->getName();
@@ -140,17 +143,24 @@ class Dispatcher {
         }
     }
 
-    public function invokeTask($uri) {
-        $config = Context::$appConfig;
-        
+    public function invoke($uri, $type = Self::TYPE_WEB_CONTROLLER) {
         $parts = explode('/', $uri);
         if (empty($parts[0])) {
             array_shift($parts);
         }
         $method = array_pop($parts);
         $class = array_pop($parts);
-        $className = ucfirst($class) . 'Task';
-        array_unshift($parts, Context::$appNS, 'app', 'task');
+        $className = '';
+        if ($type === self::TYPE_WEB_CONTROLLER) {
+            $className = ucfirst($class) . 'Controller';
+            array_unshift($parts, Context::$appNS, 'app', 'controller');
+        } else if ($type === self::TYPE_CLI_TASK) {
+            $className = ucfirst($class) . 'Task';
+            array_unshift($parts, Context::$appNS, 'app', 'task');
+        }
+        if (empty($className)) {
+            throw new Exception('Not available type');
+        }
         array_push($parts, $className);
         $classNS = join('\\', $parts);
         
@@ -158,28 +168,7 @@ class Dispatcher {
         $this->className = $className;
         $this->classNS = $classNS;
         
-        return $this->buildObject($classNS, $method);
-    }
-
-    public function invoke($uri) {
-        $config = Context::$appConfig;
-        
-        $parts = explode('/', $uri);
-        if (empty($parts[0])) {
-            array_shift($parts);
-        }
-        $method = array_pop($parts);
-        $class = array_pop($parts);
-        $className = ucfirst($class) . 'Controller';
-        array_unshift($parts, Context::$appNS, 'app', 'controller');
-        array_push($parts, $className);
-        $classNS = join('\\', $parts);
-        
-        $this->method = $method;
-        $this->className = $className;
-        $this->classNS = $classNS;
-        
-        return $this->buildObject($classNS, $method);
+        return $this->doAction($classNS, $method);
     }
 
 }

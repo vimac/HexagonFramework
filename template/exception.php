@@ -4,7 +4,7 @@
 <!--<?php print <<<EOT
 -->	
 	<meta charset="utf-8" />
-	<title>Hexagon Framework Exception Trace</title>
+	<title>Hexagon Framework Debug Trace</title>
 
 <style>
 body, ul, h1, h2{ margin: 0; padding: 0;}
@@ -53,7 +53,7 @@ h2{font-size: 14px;margin: 6px 0;}
 <body>
 	<div id="wrapper">
 
-    <h1>Hexagon Framework Error</h1>
+    <h1>Hexagon Framework Debug Trace</h1>
 	<div id="inner">
 		<p style='font-size: 14px'>$message <span class="gray">on $file ($line)</span></p>
 		<p class="gray">If you do not understand this message, the message can be sent to the site administrator.</p>

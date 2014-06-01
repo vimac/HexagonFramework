@@ -2,9 +2,8 @@
 
 namespace Hexagon\system\exception;
 
-use Hexagon\system\exception\ExceptionHandler;
+use Exception;
 use Hexagon\Context;
-use \Exception;
 
 /**
  * Default Exception Handler
@@ -15,15 +14,15 @@ class DefaultExceptionHandler extends ExceptionHandler {
 
     public function handleException(Exception $ex) {
         $trace = $ex->getTrace();
-        
+
         if (!isset($trace[0]['file']) || empty($trace[0]['file'])) {
             unset($trace[0]);
             $trace = array_values($trace);
         }
-        
+
         $file = @$trace[0]['file'];
         $line = @$trace[0]['line'];
-        
+
         $this->msg($ex->getMessage(), $file, $line, $trace, $ex->getCode());
     }
 
@@ -49,7 +48,7 @@ class DefaultExceptionHandler extends ExceptionHandler {
         foreach ($trace as $key => $value) {
             $log .= $value . "\r\n";
         }
-        
+
         $fileLineLog = "";
         foreach ($fileLines as $key => $value) {
             $value = str_replace(["  ", "\t"], "<span class='w-block'></span>", $value);
@@ -59,18 +58,18 @@ class DefaultExceptionHandler extends ExceptionHandler {
                 $fileLineLog .= "<li>$value</li>\n";
             }
         }
-        
+
         $file = str_replace(Context::$appBasePath, '', $file);
         if (HEXAGON_CLI_MODE) {
             fwrite(STDOUT, date('[Y-m-d H:i:s] ') . $message . "($file:$line)" . PHP_EOL);
         } else {
-            require (implode(DIRECTORY_SEPARATOR, [Context::$frameworkPath, 'template', 'exception.php']));
+            require(implode(DIRECTORY_SEPARATOR, [Context::$frameworkPath, 'template', 'exception.php']));
             exit();
         }
     }
 
     /**
-     * 
+     *
      *
      * @param string $file file path
      * @param string $line line
@@ -81,7 +80,7 @@ class DefaultExceptionHandler extends ExceptionHandler {
         $msg = '';
         $count = count($trace);
         $padLen = strlen($count);
-        
+
         foreach ($trace as $key => $call) {
             if (!isset($call['file']) || $call['file'] == '') {
                 $call['file'] = 'Internal Location';
@@ -92,15 +91,15 @@ class DefaultExceptionHandler extends ExceptionHandler {
             $traceLine = '#' . str_pad(($count - $key), $padLen, "0", STR_PAD_LEFT) . ' ' . self::getCallLine($call);
             $trace[$key] = $traceLine;
         }
-        
+
         $fileLines = [];
         if (is_file($file)) {
             $currentLine = $line - 1;
-            
-            $fileLines = explode("\n", file_get_contents($file, null, null, 0, 10000000));
+
+            $fileLines = explode("\n", file_get_contents($file, NULL, NULL, 0, 10000000));
             $topLine = $currentLine - 5;
-            $fileLines = array_slice($fileLines, $topLine > 0 ? $topLine : 0, 10, true);
-            
+            $fileLines = array_slice($fileLines, $topLine > 0 ? $topLine : 0, 10, TRUE);
+
             if (($count = count($fileLines)) > 0) {
                 $padLen = strlen($count);
                 foreach ($fileLines as $line => &$fileLine) {
@@ -108,14 +107,14 @@ class DefaultExceptionHandler extends ExceptionHandler {
                 }
             }
         }
-        
+
         return [$fileLines, $trace];
     }
 
     /**
      *
      *
-     * @param array $call            
+     * @param array $call
      * @return string
      */
     private static function getCallLine($call) {
@@ -123,17 +122,17 @@ class DefaultExceptionHandler extends ExceptionHandler {
         if (isset($call['file'])) {
             $call_signature .= $call['file'] . " ";
         }
-        
+
         if (isset($call['line'])) {
             $call_signature .= ":" . $call['line'] . " ";
         }
-        
+
         if (isset($call['function'])) {
             $call_signature .= "<span class=\"func\">";
             if (isset($call['class'])) {
                 $call_signature .= "$call[class]->";
             }
-            
+
             $call_signature .= $call['function'] . "(";
             if (isset($call['args'])) {
                 foreach ($call['args'] as $arg) {
