@@ -184,22 +184,25 @@ trait ResultHelper {
     /**
      * alert and redirect
      *
-     * @param $msg
+     * @param string $msg
      * @param string $url
+     * @param string $encoding
+     * @param string $contentType
      * @return Result
      */
-    protected static function _alertRedirect($msg, $url = '') {
-        $str = '<script type="text/javascript">';
+    protected static function _alertRedirect($msg, $url = '', $encoding = 'utf-8', $contentType = Result::CONTENT_HTML) {
+        $str = '<!DOCTYPE html><html><head><meta charset="' . $encoding . '"></head><body>';
+        $str .= '<script type="text/javascript">';
         $str .= "alert('" . $msg . "');";
 
-        if ($url != '') {
+        if (!empty($url)) {
             $str .= "window.location.href='{$url}';";
         } else {
             $str .= "window.history.back();";
         }
-        $str .= '</script>';
+        $str .= '</script></body></html>';
 
-        return self::_genHTMLResult($str);
+        return self::_genHTMLResult($str, $contentType);
     }
 
     /**
