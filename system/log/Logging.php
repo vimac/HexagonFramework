@@ -15,9 +15,9 @@ trait Logging {
     /**
      * Log a message
      *
-     * @param $msg
-     * @param int $level
-     * @param string $strLevel
+     * @param mixed $msg text message or any object
+     * @param int $level log level
+     * @param string $strLevel log level name
      * @return void
      */
     protected static function _log($msg, $level = HEXAGON_LOG_LEVEL_DEBUG, $strLevel = 'DBG') {
@@ -47,7 +47,7 @@ trait Logging {
 
     /**
      * Log debug level message
-     * @param $msg text message or any object
+     * @param mixed $msg text message or any object
      */
     protected static function _logDebug($msg) {
         self::_log($msg, HEXAGON_LOG_LEVEL_DEBUG, 'DBG');
@@ -55,7 +55,7 @@ trait Logging {
 
     /**
      * Log info level message
-     * @param $msg text message or any object
+     * @param mixed $msg text message or any object
      */
     protected static function _logInfo($msg) {
         self::_log($msg, HEXAGON_LOG_LEVEL_INFO, 'INF');
@@ -63,7 +63,7 @@ trait Logging {
 
     /**
      * Log warning level message
-     * @param $msg text message or any object
+     * @param mixed $msg text message or any object
      */
     protected static function _logWarn($msg) {
         self::_log($msg, HEXAGON_LOG_LEVEL_WARN, 'WRN');
@@ -71,7 +71,7 @@ trait Logging {
 
     /**
      * Log error level message
-     * @param $msg text message or any object
+     * @param mixed $msg text message or any object
      */
     protected static function _logErr($msg) {
         self::_log($msg, HEXAGON_LOG_LEVEL_ERROR, 'ERR');
@@ -79,6 +79,7 @@ trait Logging {
 
     /**
      * Log fatal level message
+     * @param mixed $msg text message or any object
      */
     protected static function _logFatal($msg) {
         self::_log($msg, HEXAGON_LOG_LEVEL_FATAL, 'FAT');
@@ -86,6 +87,7 @@ trait Logging {
 
     /**
      * Log notice level message
+     * @param mixed  $msg text message or any object
      */
     protected static function _logNotice($msg) {
         self::_log($msg, HEXAGON_LOG_LEVEL_NOTICE, 'NOTICE');
@@ -93,6 +95,7 @@ trait Logging {
 
     /**
      * Log emergency level message
+     * @param mixed $msg text message or any object
      */
     protected static function _logEmergency($msg) {
         self::_log($msg, HEXAGON_LOG_LEVEL_NOTICE, 'EMERGENCY');
@@ -100,7 +103,7 @@ trait Logging {
 
     /**
      * Convert any simple object or array to text
-     * @param unknown_type $obj
+     * @param mixed $obj
      * @return string
      */
     protected static function _dumpObj($obj) {
