@@ -2,6 +2,8 @@
 
 namespace Hexagon\system\result;
 
+use Hexagon\Framework;
+
 class Result {
     
     const TYPE_PAGE = 'PAGE';
@@ -45,10 +47,10 @@ class Result {
      * @param mixed $data Result data
      * @param mixed $meta Result meta info, like page template location, or jpeg compression rate, see class doc for detail
      * @param string $contentType Content type, default is <b>text/html</b>
-     * @param function $lambda Do some special things by this function, usually use in custom return type
+     * @param callable $lambda Do some special things by this function, usually use in custom return type
      * @return Result 
      */
-    public function __construct($type = NULL, $data = NULL, $meta = NULL, $contentType = self::CONTENT_HTML, $lambda = NULL) {
+    public function __construct($type = NULL, $data = NULL, $meta = NULL, $contentType = self::CONTENT_HTML, callable $lambda = NULL) {
         $this->type = isset($type) ? $type : 'PAGE';
         $this->data = isset($data) ? $data : [];
         $this->meta = $meta;
@@ -59,8 +61,11 @@ class Result {
             $this->contentType = self::CONTENT_BINARY;
         }
         
-        if ($lambda) {
-            $lambda($self);
+        if (is_callable($lambda)) {
+            $result = call_user_func($lambda, $this);
+            if ($result === FALSE) {
+                Framework::getInstance()->stop();
+            }
         }
     }
 }

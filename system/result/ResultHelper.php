@@ -2,33 +2,31 @@
 
 namespace Hexagon\system\result;
 
-use Hexagon\system\http\HttpRequest;
 use Hexagon\Framework;
+use Hexagon\system\http\HttpRequest;
 
 trait ResultHelper {
 
     /**
      * this result type return a custom type
-     * 
-     * @param $type int
-     *            Result type, use \Hexagon\system\result\Result\TYPE_* consts value
-     * @param $data mixed
+     *
+     * @param mixed $data
      *            Result data
-     * @param $meta mixed
+     * @param mixed $meta
      *            Result meta info, like page template location, or jpeg compression rate, see class doc for detail
      * @param string $contentType
      *            Content type, default is <b>application/octet-stream</b>
-     * @param $lambda function
+     * @param callable $callback
      *            Do some special things by this function, usually use in custom return type
      * @return Result
      */
-    protected static function _genCustomResult($data, $meta, $contentType = Result::CONTENT_BINARY, $lambda = NULL) {
-        return new Result(Result::TYPE_USER_DEFINE, $data, $meta, $contentType, $lambda);
+    protected static function _genCustomResult($data, $meta, $contentType = Result::CONTENT_BINARY, callable $callback = NULL) {
+        return new Result(Result::TYPE_USER_DEFINE, $data, $meta, $contentType, $callback);
     }
 
     /**
      * this result type use template engine to build a complete page.
-     * 
+     *
      * @param array $bindArrayData
      *            template tags data
      * @param string $screenLocation
@@ -37,72 +35,63 @@ trait ResultHelper {
      *            template relative path, NULL for auto
      * @param string $contentType
      *            content type
-     * @param function $lambda
+     * @param callable $callback callback function
      *            Do some special things by this function
      * @return Result
      */
-    protected static function _genPageResult($bindArrayData, $screenLocation = NULL, $layoutLocation = NULL, $contentType = Result::CONTENT_HTML, $lambda = NULL) {
+    protected static function _genPageResult($bindArrayData, $screenLocation = NULL, $layoutLocation = NULL, $contentType = Result::CONTENT_HTML, callable $callback = NULL) {
         return new Result(Result::TYPE_PAGE, $bindArrayData, [
-                                                                'screen' => $screenLocation, 
-                                                                'layout' => $layoutLocation], $contentType, $lambda);
+            'screen' => $screenLocation,
+            'layout' => $layoutLocation
+        ], $contentType, $callback);
     }
 
     /**
      * this result type return a simple text message to client side
-     * 
-     * @param string $text            
-     * @param string $contentType            
-     * @param function $lambda            
+     *
+     * @param string $text
+     * @param string $contentType
+     * @param callable $callback callback function
      * @return Result
      */
-    protected static function _genTextResult($text, $contentType = Result::CONTENT_TEXT, $lambda = NULL) {
-        return new Result(Result::TYPE_TEXT, $text, NULL, $contentType, $lambda);
-    }
-
-    /**
-     * this result type return a simple text message to client side
-     * 
-     * @param string $text            
-     * @param string $contentType            
-     * @param function $lambda            
-     * @return Result
-     */
-    protected static function _genHTMLResult($html, $contentType = Result::CONTENT_HTML, $lambda = NULL) {
-        return new Result(Result::TYPE_HTML, $html, NULL, $contentType, $lambda);
+    protected static function _genTextResult($text, $contentType = Result::CONTENT_TEXT, callable $callback = NULL) {
+        return new Result(Result::TYPE_TEXT, $text, NULL, $contentType, $callback);
     }
 
     /**
      * this result type return a simple json data to client side
-     * 
-     * @param string $text            
-     * @param string $contentType            
-     * @param function $lambda            
+     *
+     * @param string $data
+     * @param string $contentType
+     * @param callable $callback callback function
      * @return Result
      */
-    protected static function _genJSONResult($data, $contentType = Result::CONTENT_JSON, $lambda = NULL) {
-        return new Result(Result::TYPE_JSON, $data, NULL, $contentType, $lambda);
+    protected static function _genJSONResult($data, $contentType = Result::CONTENT_JSON, callable $callback = NULL) {
+        return new Result(Result::TYPE_JSON, $data, NULL, $contentType, $callback);
     }
 
     /**
      * this result type return a simple xml data to client side
-     * 
-     * @param string $text            
-     * @param string $contentType            
+     *
+     * @param string $data
+     * @param string $contentType
+     * @param callable $callback callback function
      * @return Result
      */
-    protected static function _genXMLResult($data, $contentType = Result::CONTENT_XML, $lambda = NULL) {
+    protected static function _genXMLResult($data, $contentType = Result::CONTENT_XML, callable $callback = NULL) {
         return new Result(Result::TYPE_XML, $data, NULL, $contentType);
     }
 
     /**
      * this result type return a simple json or xml data to client side by detect client's accept content type
-     * 
-     * @param string $text            
-     * @param string $contentType            
-     * @param function $lambda            
+     *
+     * @param mixed $data
+     * @param string $type
+     * @param callable $callback callback function
      * @return Result
+     * @throws UnknownResultType
      */
-    protected static function _genRESTResult($data, $type = 'AUTO', $lambda = NULL) {
+    protected static function _genRESTResult($data, $type = 'AUTO', callable $callback = NULL) {
         $type = strtoupper($type);
         if ($type === 'AUTO') {
             $request = HttpRequest::getCurrentRequest();
@@ -111,7 +100,7 @@ trait ResultHelper {
         if ($type === 'XML' || $type === 'JSON') {
             $func = '_gen' . $type . 'Result';
             $contentType = constant('Hexagon\system\result\Result::CONTENT_' . $type);
-            return self::$func($data, $contentType, $lambda);
+            return self::$func($data, $contentType, $callback);
         } else {
             throw new UnknownResultType();
         }
@@ -119,45 +108,64 @@ trait ResultHelper {
 
     /**
      * this result type return a png image generated by GD library
-     * 
-     * @param resource $gdRes            
-     * @param string $contentType            
-     * @param function $lambda            
+     *
+     * @param resource $gdRes
+     * @param string $contentType
+     * @param callable $callback callback function
      * @return Result
      */
-    protected static function _genPNGResult($gdRes, $contentType = Result::CONTENT_PNG, $lambda = NULL) {
-        return new Result(Result::TYPE_PNG, $gdRes, NULL, $contentType, $lambda);
+    protected static function _genPNGResult($gdRes, $contentType = Result::CONTENT_PNG, callable $callback = NULL) {
+        return new Result(Result::TYPE_PNG, $gdRes, NULL, $contentType, $callback);
     }
 
     /**
      * this result type return a jpeg image generated by GD library
-     * 
-     * @param resource $gdRes            
-     * @param string $contentType            
-     * @param number $jpegQuality            
-     * @param function $lambda            
+     *
+     * @param resource $gdRes
+     * @param string $contentType
+     * @param int $jpegQuality
+     * @param callable $callback callback function
      * @return Result
      */
-    protected static function _genJPEGResult($gdRes, $contentType = Result::CONTENT_JPEG, $jpegQuality = 75, $lambda = NULL) {
+    protected static function _genJPEGResult($gdRes, $contentType = Result::CONTENT_JPEG, $jpegQuality = 75, callable $callback = NULL) {
         return new Result(Result::TYPE_JPEG, $gdRes, [
-                                                        'quality' => $jpegQuality], $contentType, $lambda);
+            'quality' => $jpegQuality
+        ], $contentType, $callback);
     }
 
     /**
      * this result type return a gif image generated by GD library
-     * 
-     * @param resource $gdRes            
-     * @param string $contentType            
-     * @param function $lambda            
+     *
+     * @param resource $gdRes
+     * @param string $contentType
+     * @param callable $callback callback function
      * @return Result
      */
-    protected static function _genGIFResult($gdRes, $contentType = Result::CONTENT_GIF, $lambda = NULL) {
-        return new Result(Result::TYPE_GIF, $gdRes, NULL, $contentType, $lambda);
+    protected static function _genGIFResult($gdRes, $contentType = Result::CONTENT_GIF, callable $callback = NULL) {
+        return new Result(Result::TYPE_GIF, $gdRes, NULL, $contentType, $callback);
+    }
+
+    /**
+     * redirect to another url
+     *
+     * @param string $uri
+     * @param int $code
+     *            number in 3xx: <br />
+     *            301 - Moved Permanently <br />
+     *            302 - Found <br />
+     *            303 - See Other <br />
+     *            307 - Temporary Redirect <br />
+     * @return Result
+     */
+    protected static function _redirect($uri, $code = 302) {
+        header('Location: ' . $uri, TRUE, $code);
+        return self::_genNoneResult();
     }
 
     /**
      * this result is nothing, usually use in a cli task
-     * 
+     *
+     * @param string @contentType
      * @return Result
      */
     protected static function _genNoneResult($contentType = Result::TYPE_HTML) {
@@ -165,35 +173,45 @@ trait ResultHelper {
     }
 
     /**
-     * redirect to another url
-     * 
-     * @param string $url            
-     * @param number $method
-     *            number in 3xx: <br />
-     *            301 - Moved Permanently <br />
-     *            302 - Found <br />
-     *            303 - See Other <br />
-     *            307 - Temporary Redirect <br />
+     * do nothing and stop framework running
+     *
+     * @return void
      */
-    protected static function _redirect($uri, $code = 302) {
-        header('Location: ' . $uri, TRUE, $code);
-        return self::_genNoneResult();
-    }
-    
     protected static function _ignoreFrameworkResult() {
         Framework::getInstance()->stop(0);
     }
 
+    /**
+     * alert and redirect
+     *
+     * @param $msg
+     * @param string $url
+     * @return Result
+     */
     protected static function _alertRedirect($msg, $url = '') {
         $str = '<script type="text/javascript">';
         $str .= "alert('" . $msg . "');";
-        
+
         if ($url != '') {
             $str .= "window.location.href='{$url}';";
         } else {
             $str .= "window.history.back();";
         }
-        echo $str .= '</script>';
+        $str .= '</script>';
+
+        return self::_genHTMLResult($str);
+    }
+
+    /**
+     * this result type return a simple text message to client side
+     *
+     * @param string $html
+     * @param string $contentType
+     * @param callable $callback callback function
+     * @return Result
+     */
+    protected static function _genHTMLResult($html, $contentType = Result::CONTENT_HTML, callable $callback = NULL) {
+        return new Result(Result::TYPE_HTML, $html, NULL, $contentType, $callback);
     }
 
 }
