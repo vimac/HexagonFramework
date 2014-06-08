@@ -11,15 +11,19 @@ abstract class Widget {
     use Logging;
     
     /**
-     * @param array
+     * Widget main logic
+     *
+     * @param array $userData
      * @return array
      */
-    public abstract function execute($userData = NULL);
+    public abstract function execute(array $userData = NULL);
     
     /**
      * load widget and its default template
+     *
      * @param array $userData
      * @param Widget $instance for reuse
+     * @return Widget
      */
     public static function load($userData = NULL, Widget $instance = NULL) {
         $className = get_called_class();
@@ -27,15 +31,18 @@ abstract class Widget {
         $name = array_slice($nameParts, 3);
         array_push($name, lcfirst(array_pop($name)));
         $relativeTemplate = join('/', $name);
+        self::_logDebug('Use widget template: ' . $relativeTemplate);
         return self::loadWithTemplate($userData, $relativeTemplate, $instance);
     }
     
     /**
-     * load widget and its default template
+     * load widget and custom template
+     *
      * @param array $userData
      * @param string $relativeTemplate relative widget template path
      * @param Widget $instance for reuse
      * @return Widget instance of Widget subclass
+     * @throws WidgetTemplateNotFound
      */
     public static function loadWithTemplate($userData = NULL, $relativeTemplate, Widget $instance = NULL) {
         $className = get_called_class();
