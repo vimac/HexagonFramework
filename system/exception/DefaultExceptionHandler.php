@@ -20,8 +20,8 @@ class DefaultExceptionHandler extends ExceptionHandler {
             $trace = array_values($trace);
         }
 
-        $file = @$trace[0]['file'];
-        $line = @$trace[0]['line'];
+        $file = isset($trace[0]['file']) ? $trace[0]['file'] : 'internal';
+        $line = isset($trace[0]['line']) ? $trace[0]['line'] : 1;
 
         $this->msg($ex->getMessage(), $file, $line, $trace, $ex->getCode());
     }
