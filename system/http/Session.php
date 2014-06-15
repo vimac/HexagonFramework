@@ -9,7 +9,6 @@ class Session {
     use Logging;
 
     /**
-     *
      * @var Session
      */
     private static $session;

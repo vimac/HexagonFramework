@@ -79,7 +79,10 @@ class DBAgentStatement {
     }
     
     /**
+     * Get the prepared SQL for debugging
      * MySQL only
+     *
+     * @return string
      */
     public function buildSQLDebugCode() {
         $count = count($this->args);

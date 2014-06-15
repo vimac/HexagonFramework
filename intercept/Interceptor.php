@@ -5,7 +5,6 @@ namespace Hexagon\intercept;
 use \Exception;
 use \Hexagon\system\log\Logging;
 use \Hexagon\Context;
-use \Hexagon\system\result\Result;
 
 class Interceptor {
     
@@ -29,7 +28,10 @@ class Interceptor {
         }
         return self::$i;
     }
-    
+
+    /**
+     * Read all interceptors rules from Config
+     */
     public function initRules() {
         $config = Context::$appConfig;
         if (isset($config->interceptRules['pre'])) {
@@ -39,7 +41,15 @@ class Interceptor {
             $this->postRules = $config->interceptRules['post'];
         }
     }
-    
+
+    /**
+     * Actually execute the rules
+     *
+     * @param string $type 'pre' or 'post'
+     * @return \Hexagon\system\result\Result
+     * @throws WrongInterceptorRuleReturnType
+     * @throws MissingInterceptorRuleMethod
+     */
     private function commitRules($type) {
         $uri = Context::$uri;
         $arrayName = $type . 'Rules';
@@ -74,11 +84,17 @@ class Interceptor {
             }
         }
     }
-    
+
+    /**
+     * Commit pre rules
+     */
     public function commitPreRules() {
         $this->commitRules('pre');
     }
-    
+
+    /**
+     * Commit post rules
+     */
     public function commitPostRules() {
         $this->commitRules('post');
     }

@@ -12,6 +12,7 @@ class DBAgentFactory {
     
     /**
      * Get a DBAgent instance
+     *
      * @param string $name
      * @return DBAgent
      */

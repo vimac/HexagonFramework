@@ -34,7 +34,12 @@ class Rule {
         $this->request = HttpRequest::getCurrentRequest();
         $this->response = HttpResponse::getCurrentResponse();
     }
-    
+
+    /**
+     * Stop rules commiting
+     *
+     * @throws BreakInterceptor
+     */
     protected function breakInterceptor() {
         throw new BreakInterceptor();
     }

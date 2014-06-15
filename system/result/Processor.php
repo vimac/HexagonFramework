@@ -67,7 +67,7 @@ class Processor {
                 }
             }
         }
-        $this->_logDebug('screen path: ' . $absoluteScreen);
+        $this->_logDebug('Screen path: ' . $absoluteScreen);
         
         $isDefinedLayout = isset($result->meta['layout']);
         
@@ -97,7 +97,7 @@ class Processor {
                 }
             }
         }
-        $this->_logDebug('layout path: ' . $absoluteLayout);
+        $this->_logDebug('Layout path: ' . $absoluteLayout);
         
         $data = $result->data;
         foreach ($data as $k => $v) {

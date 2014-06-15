@@ -6,6 +6,7 @@ trait DBAgentHelper {
     
     /**
      * Get a DBAgent instance
+     *
      * @param string $name
      * @return DBAgent
      */

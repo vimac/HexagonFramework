@@ -15,22 +15,34 @@ abstract class RequestModel extends Model {
     
     protected static $_requestMethod = self::REQUEST_METHOD_ALL_TYPE;
     
-    private $classNS;
-    private $method;
+    private $_classNS;
+    private $_method;
     
     public function __construct($classNS = NULL, $method = NULL) {
-        $this->classNS = $classNS;
-        $this->method = $method;
+        $this->_classNS = $classNS;
+        $this->_method = $method;
     }
-    
-    public function getRequestClassNamespace() {
-        return $this->classNS;
+
+    /**
+     * Get requested class full name
+     * @return string
+     */
+    public function getClassNamespace() {
+        return $this->_classNS;
     }
-    
-    public function getRequestMethod() {
-        return $this->method;
+
+    /**
+     * Get requested method name
+     * @return stirng
+     */
+    public function getMethod() {
+        return $this->_method;
     }
-    
+
+    /**
+     * Determine whether the request method allowed
+     * @return bool
+     */
     public static final function _checkAllowedMethod() {
         $method = $_SERVER['REQUEST_METHOD'];
         $methodVal = constant('self::REQUEST_METHOD_' . $method);
@@ -38,7 +50,9 @@ abstract class RequestModel extends Model {
     }
     
     /**
-     * return anything other than TRUE means not passed this check
+     * Return anything other than TRUE means not passed this check
+     *
+     * @return bool
      */
     public function _checkParameters() {
         return TRUE;

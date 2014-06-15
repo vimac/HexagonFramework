@@ -40,7 +40,9 @@ class DBAgent {
     
     /**
      * Return current PDO instance
+     *
      * @return PDO
+     * @throws DBAgentException
      */
     public function getPDOInstance() {
         if (class_exists('PDO', FALSE)) {
@@ -48,6 +50,7 @@ class DBAgent {
                 extract($this->parameters);
                 try{
                     $this->pdo = new PDO($dsn, $username, $password, $options);
+                    self::_logDebug('DB Connected to ' . $dsn);
                 } catch (PDOException $e) {
                     self::_logErr($e);
                     throw new DBAgentException('PDO Initalized Failed. ' . $e->getCode() . ' ' . $e->getMessage());
@@ -65,6 +68,7 @@ class DBAgent {
     
     /**
      * Execute update SQL
+     *
      * @param DBAgentStatement $st
      * @throws DBAgentException
      * @return integer Affected lines
@@ -95,9 +99,11 @@ class DBAgent {
     
     /**
      * Execute query SQL with callback
+     *
      * @param DBAgentStatement $st
      * @param Closure $callback
      * @param string $class
+     * @return mixed
      * @throws DBAgentException 
      */
     public function queryWithCallback(DBAgentStatement $st, Closure $callback, $class = NULL) {
@@ -141,6 +147,7 @@ class DBAgent {
     
     /**
      * Execute SQL statement and return the result set
+     *
      * @param DBAgentStatement $st
      * @throws DBAgentException
      * @return array Result set
@@ -166,10 +173,11 @@ class DBAgent {
     
     /**
      * Execute SQL statement and return the first line
-     * @param DBAgentStatement $sql
+     *
+     * @param DBAgentStatement $st
      * @param string $class Class name of object return
+     * @return mixed
      * @throws DBAgentException
-     * @return array Result set
      */
     public function queryOne(DBAgentStatement $st, $class = NULL) {
         self::_logDebug('SQL: [' . $st->getSQL() . ']. with Params: ' . json_encode($st->buildArgsDebugInfo()));
@@ -194,18 +202,32 @@ class DBAgent {
         
         return $r;
     }
-        
-    
+
+    /**
+     * Begin PDO transaction
+     *
+     * @return bool
+     */
     public function beginTransaction() {
         $pdo = $this->getPDOInstance();
         $pdo->query('set autocommit=0');
         return $pdo->beginTransaction();
     }
-    
+
+    /**
+     * Commit PDO transaction
+     *
+     * @return bool
+     */
     public function commit() {
         return $this->getPDOInstance()->commit();
     }
-    
+
+    /**
+     * Roolback
+     *
+     * @return bool
+     */
     public function rollback() {
     	return $this->getPDOInstance()->rollBack();
     }

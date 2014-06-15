@@ -5,8 +5,6 @@ namespace Hexagon\system\util;
 use Hexagon\Context;
 use Hexagon\config\BaseConfig;
 use Hexagon\system\log\Logging;
-use Hexagon\system\security\Security;
-use Hexagon\system\security\cipher\Cipher;
 use Hexagon\system\http\HttpRequest;
 use Hexagon\system\http\HttpResponse;
 
@@ -57,26 +55,15 @@ class TemplateHelper {
     }
     
     public function formOpen($action, $method = 'POST', $attrs = []) {
-        $text = '<form';
-        $attrs['action'] = $action;
-        $attrs['method'] = $method;
-        foreach ($attrs as $name => $attr) {
-            $text .= ' ' . $name . '="' . $attr . '"';
-        }
-        $text .= '>';
-        if ($this->config->csrfProtection && strcasecmp($method, 'POST') === 0) {
-            $text .= '<div style="display:none"><input type="hidden" name="' . $this->config->csrfTokenName . '" value="' . Security::getCSRFTokenHash() . '" /></div>';
-        }
-        echo $text;
+        echo \Hexagon\formOpen($action, $method, $attrs);
     }
     
     public function formOpenMultipart($action, $method = 'POST', $attrs = []) {
-        $attrs['enctype'] = 'multipart/form-data';
-        return $this->formOpen($action, $method, $attrs);
+        echo \Hexagon\formOpenMultipart($action, $method, $attrs);
     }
     
     public function formClose() {
-        echo '</form>';
+        echo \Hexagon\formClose();
     }
     
     public function addJS($file) {

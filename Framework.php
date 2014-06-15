@@ -9,6 +9,7 @@
 namespace Hexagon;
 
 require 'Common.php';
+require 'Functions.php';
 
 use Exception;
 use Hexagon\intercept\Interceptor;
