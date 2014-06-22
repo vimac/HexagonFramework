@@ -8,6 +8,8 @@
 
 namespace Hexagon;
 
+use Hexagon\system\security\Security;
+
 function formOpen($action, $method = 'POST', $attrs = []) {
     $config = Context::$appConfig;
 
