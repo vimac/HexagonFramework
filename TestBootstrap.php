@@ -20,6 +20,7 @@ class TestBootstrap {
     }
     
     public static function initForTest($namespace, $configClass = NULL) {
+        define('HEXAGON_TEST_MODE', true);
         require __DIR__ . DIRECTORY_SEPARATOR . 'Framework.php';
         $arrayNS = explode('\\', $namespace);
         $appNS = array_shift($arrayNS);

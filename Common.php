@@ -20,7 +20,8 @@ define('HEXAGON_URI_PROTOCOL_PATH_INFO', 1);
 define('HEXAGON_URI_PROTOCOL_QUERY_STRING', 2);
 define('HEXAGON_URI_PROTOCOL_REQUEST_URI', 3);
 
-if (php_sapi_name() === 'cli') {
+$testMode = defined('HEXAGON_TEST_MODE') ? HEXAGON_TEST_MODE : false;
+if (php_sapi_name() === 'cli' && !$testMode) {
     define('HEXAGON_CLI_MODE', TRUE);
 } else {
     define('HEXAGON_CLI_MODE', FALSE);
