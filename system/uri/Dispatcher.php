@@ -130,7 +130,7 @@ class Dispatcher {
         $refCheckParameters = $refClass->getMethod('_checkParameters');
         $checkResult = $refCheckParameters->invoke($requestModel);
         if ($checkResult !== TRUE) {
-            throw new MissingParameter($checkResult, $method, $classNS);
+            throw new CheckNotPassed($method, $classNS);
         }
         
         return [$requestModel];
@@ -201,6 +201,14 @@ class MissingParameter extends Exception {
 
     public function __construct($name, $method, $classNS) {
         parent::__construct('Missing request argument for parameter [' . $name . '] in controller method [' . $classNS . '->' . $method . ']', 404);
+    }
+
+}
+
+class CheckNotPassed extends Exception {
+
+    public function __construct($method, $classNS) {
+        parent::__construct('Parameter check not passed in controller method [' . $classNS . '->' . $method . ']', 404);
     }
 
 }

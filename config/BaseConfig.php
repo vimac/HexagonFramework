@@ -18,6 +18,7 @@ class BaseConfig {
     ];
     
     public $charset = 'UTF-8';
+    public $timezone = 'Asia/Shanghai';
     
     public $uriProtocol = HEXAGON_URI_PROTOCOL_AUTO;
     public $uriDefault = 'welcome/index';

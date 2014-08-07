@@ -181,6 +181,12 @@ final class Framework {
         $config = $configClass::getInstance();
         Context::$appConfig = $config;
 
+        if (isset($config->timezone)) {
+            date_default_timezone_set($config->timezone);
+        } else {
+            date_default_timezone_set(@date_default_timezone_get());
+        }
+
         self::_logDebug('Request for ' . Context::$appConfig->appName . ' start');
 
         Context::initVendorAutoload();
