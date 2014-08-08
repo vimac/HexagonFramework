@@ -210,7 +210,7 @@ class DBAgent {
      */
     public function beginTransaction() {
         $pdo = $this->getPDOInstance();
-        $pdo->query('set autocommit=0');
+        $pdo->query('set autocommit = 0');
         return $pdo->beginTransaction();
     }
 
@@ -220,7 +220,9 @@ class DBAgent {
      * @return bool
      */
     public function commit() {
-        return $this->getPDOInstance()->commit();
+        $result = $this->getPDOInstance()->commit();
+        $pdo->query('set autocommit = 1');
+        return $result;
     }
 
     /**
@@ -229,7 +231,9 @@ class DBAgent {
      * @return bool
      */
     public function rollback() {
-    	return $this->getPDOInstance()->rollBack();
+    	$result = $this->getPDOInstance()->rollBack();
+        $pdo->query('set autocommit = 1');
+        return $result;
     }
     
 }
