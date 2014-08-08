@@ -220,7 +220,8 @@ class DBAgent {
      * @return bool
      */
     public function commit() {
-        $result = $this->getPDOInstance()->commit();
+        $pdo = $this->getPDOInstance();
+        $result = $pdo->commit();
         $pdo->query('set autocommit = 1');
         return $result;
     }
@@ -231,7 +232,8 @@ class DBAgent {
      * @return bool
      */
     public function rollback() {
-    	$result = $this->getPDOInstance()->rollBack();
+        $pdo = $this->getPDOInstance();
+    	$result = $pdo->rollBack();
         $pdo->query('set autocommit = 1');
         return $result;
     }
