@@ -50,7 +50,7 @@ class BaseConfig {
     
     /**
      * Singleton
-     * @var BaseConfig
+     * @return BaseConfig
      */
     public static function getInstance() {
         $name = get_called_class();
