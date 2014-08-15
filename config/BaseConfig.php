@@ -75,5 +75,9 @@ class BaseConfig {
             return $this->database;
         }
     }
+
+    public function __construct() {
+        // do nothing
+    }
     
 }
