@@ -3,8 +3,10 @@
 namespace Hexagon\intercept;
 
 use \Exception;
+use \ReflectionClass;
 use \Hexagon\system\log\Logging;
 use \Hexagon\Context;
+use \Hexagon\system\result\Result;
 
 class Interceptor {
     
@@ -89,14 +91,14 @@ class Interceptor {
      * Commit pre rules
      */
     public function commitPreRules() {
-        $this->commitRules('pre');
+        return $this->commitRules('pre');
     }
 
     /**
      * Commit post rules
      */
     public function commitPostRules() {
-        $this->commitRules('post');
+        return $this->commitRules('post');
     }
 }
 
@@ -108,7 +110,7 @@ class MissingInterceptorRuleMethod extends Exception {
 
 class WrongInterceptorRuleReturnType extends Exception {
     public function __construct($cls) {
-        $ref = new \ReflectionClass($cls);
+        $ref = new ReflectionClass($cls);
         parent::__construct('Wrong return type for interceptor rule, class name: [' . $ref->getName() . ']', 500);
     }
 }
