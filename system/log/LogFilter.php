@@ -2,25 +2,25 @@
 
 namespace Hexagon\system\log;
 
-use \Hexagon\Context;
+use Hexagon\Context;
 
 class LogFilter {
-    
+
     /**
      * @var LogFilter
      */
     private static $filter;
-    
+
     private $rule = [];
-    
+
     private $reRule = [];
     private $reCache = [];
-    
+
     private $wdRule = [];
     private $wdCache = [];
-    
+
     private $allCache = [];
-    
+
     private function __construct() {
         $config = Context::$appConfig;
         foreach ($config->logs as $idx => $log) {
@@ -36,7 +36,7 @@ class LogFilter {
             }
         }
     }
-    
+
     /**
      * @return \Hexagon\system\log\LogFilter
      */
@@ -46,7 +46,7 @@ class LogFilter {
         }
         return self::$filter;
     }
-    
+
     public function getLoggerInfo($class, $method) {
         $logIds = array_merge($this->allCache, $this->matchByWD($class, $method), $this->matchByRE($class, $method));
         $config = Context::$appConfig;
@@ -56,7 +56,7 @@ class LogFilter {
         }
         return $logs;
     }
-    
+
     private function matchByRE($class, $method) {
         $key = $class . '.' . $method;
         if (!isset($this->reCache[$key])) {
@@ -68,10 +68,10 @@ class LogFilter {
             }
             $this->reCache[$key] = $result;
         }
-        
+
         return $this->reCache[$key];
     }
-    
+
     private function matchByWD($class, $method) {
         $key = $class . '.' . $method;
         if (!isset($this->wdCache[$key])) {
@@ -85,5 +85,5 @@ class LogFilter {
         }
         return $this->wdCache[$key];
     }
-    
+
 }

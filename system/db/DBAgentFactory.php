@@ -7,9 +7,9 @@ use Hexagon\system\log\Logging;
 
 class DBAgentFactory {
     use Logging;
-    
+
     public static $agents = [];
-    
+
     /**
      * Get a DBAgent instance
      *

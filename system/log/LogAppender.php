@@ -2,7 +2,7 @@
 
 namespace Hexagon\system\log;
 
-use \ReflectionClass;
+use ReflectionClass;
 
 class LogAppender {
 

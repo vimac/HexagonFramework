@@ -2,10 +2,10 @@
 
 namespace Hexagon\system\http;
 
-use \Hexagon\system\log\Logging;
+use Hexagon\system\log\Logging;
 
 class Session {
-    
+
     use Logging;
 
     /**
@@ -42,7 +42,7 @@ class Session {
     private function __construct() {
         // prevent public access
     }
-    
+
     public function getSessionId() {
         return $this->sessionId;
     }

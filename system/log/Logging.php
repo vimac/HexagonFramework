@@ -3,7 +3,6 @@
 namespace Hexagon\system\log;
 
 use Exception;
-use Hexagon\Context;
 
 /**
  * Implementation of the logging system
@@ -87,7 +86,7 @@ trait Logging {
 
     /**
      * Log notice level message
-     * @param mixed  $msg text message or any object
+     * @param mixed $msg text message or any object
      */
     protected static function _logNotice($msg) {
         self::_log($msg, HEXAGON_LOG_LEVEL_NOTICE, 'NOTICE');

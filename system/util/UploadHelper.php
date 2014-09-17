@@ -2,7 +2,7 @@
 
 namespace Hexagon\system\util;
 
-use \Exception;
+use Exception;
 
 final class UploadHelper {
 
@@ -27,7 +27,7 @@ final class UploadHelper {
     const UPLOAD_FILE_NAME_AUTO_INCREMENT = 2;
 
     /**
-     * Auto generate random filename 
+     * Auto generate random filename
      */
     const UPLOAD_FILE_AUTO_RANDOM_NAME = 3;
 
@@ -109,13 +109,13 @@ final class UploadHelper {
         if (!file_exists($dir)) {
             @mkdir($dir);
         }
-        
+
         $dir = realpath($dir);
-        
+
         if (!file_exists($dir) || !is_writable($dir)) {
             throw new UploadDirectoryCannotBeAccess();
         }
-        
+
         switch ($namePolicy) {
             case self::UPLOAD_FILE_SAME_SKIP:
                 $func = [$this, 'getSkipFilename'];
@@ -132,7 +132,7 @@ final class UploadHelper {
             default:
                 $func = [$this, 'getOriginalFilename'];
         }
-        
+
         $result = [];
         foreach ($_FILES as $key => $file) {
             if (!empty($allowedExtensions)) {
@@ -155,61 +155,61 @@ final class UploadHelper {
                 }
             }
         }
-        
+
         return $result;
     }
-    
-    
+
+
     public function moveFileToDirectory($dir, $key, $file, $namePolicy = self::UPLOAD_FILE_OVERRIDES_OLD, $allowedExtensions = [], Callable $filterFunc = NULL) {
-    	if (!file_exists($dir)) {
-    		@mkdir($dir);
-    	}
-    
-    	$dir = realpath($dir);
-    
-    	if (!file_exists($dir) || !is_writable($dir)) {
-    		throw new UploadDirectoryCannotBeAccess();
-    	}
-    
-    	switch ($namePolicy) {
-    		case self::UPLOAD_FILE_SAME_SKIP:
-    			$func = [$this, 'getSkipFilename'];
-    			break;
-    		case self::UPLOAD_FILE_AUTO_RENAME:
-    			$func = [$this, 'getAutoRenamedFilename'];
-    			break;
-    		case self::UPLOAD_FILE_NAME_AUTO_INCREMENT:
-    			$func = [$this, 'getAutoIncrementFilename'];
-    			break;
-    		case self::UPLOAD_FILE_AUTO_RANDOM_NAME:
-    			$func = [$this, 'getRandomFilename'];
-    			break;
-    		default:
-    			$func = [$this, 'getOriginalFilename'];
-    	}
-    
-    	$result = NULL;
-    	if (!empty($allowedExtensions)) {
-    		$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-    		if (!in_array($ext, $allowedExtensions)) {
-    			return NULL;
-    		}
-    	}
-    	if (isset($filterFunc)) {
-    		if (!$filterFunc($file)) {
-    			return NULL;
-    		}
-    	}
-    	$newpath = call_user_func($func, $dir, $file['name']);
-    	if (!empty($newpath)) {
-    		if (move_uploaded_file($file['tmp_name'], $newpath)) {
-    			$result =  $newpath;
-    			} else {
-    			throw new UploadFileCannotBeMoved();
-    		}
-    	}
-    	
-    	return $result;
+        if (!file_exists($dir)) {
+            @mkdir($dir);
+        }
+
+        $dir = realpath($dir);
+
+        if (!file_exists($dir) || !is_writable($dir)) {
+            throw new UploadDirectoryCannotBeAccess();
+        }
+
+        switch ($namePolicy) {
+            case self::UPLOAD_FILE_SAME_SKIP:
+                $func = [$this, 'getSkipFilename'];
+                break;
+            case self::UPLOAD_FILE_AUTO_RENAME:
+                $func = [$this, 'getAutoRenamedFilename'];
+                break;
+            case self::UPLOAD_FILE_NAME_AUTO_INCREMENT:
+                $func = [$this, 'getAutoIncrementFilename'];
+                break;
+            case self::UPLOAD_FILE_AUTO_RANDOM_NAME:
+                $func = [$this, 'getRandomFilename'];
+                break;
+            default:
+                $func = [$this, 'getOriginalFilename'];
+        }
+
+        $result = NULL;
+        if (!empty($allowedExtensions)) {
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            if (!in_array($ext, $allowedExtensions)) {
+                return NULL;
+            }
+        }
+        if (isset($filterFunc)) {
+            if (!$filterFunc($file)) {
+                return NULL;
+            }
+        }
+        $newpath = call_user_func($func, $dir, $file['name']);
+        if (!empty($newpath)) {
+            if (move_uploaded_file($file['tmp_name'], $newpath)) {
+                $result = $newpath;
+            } else {
+                throw new UploadFileCannotBeMoved();
+            }
+        }
+
+        return $result;
     }
 
 }

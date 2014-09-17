@@ -3,16 +3,16 @@ namespace Hexagon\test\system\uri;
 
 require implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', '..', 'TestBootstrap.php']);
 
-use \Hexagon\TestBootstrap;
-use \PHPUnit_Framework_TestCase;
-use \Hexagon\system\uri\Router;
-use \Exception;
-use \ReflectionClass;
+use Exception;
+use Hexagon\system\uri\Router;
+use Hexagon\TestBootstrap;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 
 TestBootstrap::initForTest(__NAMESPACE__, 'Hexagon\config\BaseConfig');
 
 class RouterTest extends PHPUnit_Framework_TestCase {
-    
+
     /**
      * @dataProvider paramsProvider
      */
@@ -24,10 +24,10 @@ class RouterTest extends PHPUnit_Framework_TestCase {
             $this->assertEquals($result, (new ReflectionClass($e))->getShortName());
         }
     }
-    
+
     public function paramsProvider() {
         return [
-            ['/welcome/new_world', '/welcome/new_world'], 
+            ['/welcome/new_world', '/welcome/new_world'],
             ['/test/index', '/test/index'],
             ['aaaa/test/index', '/aaaa/test/index'],
             ['index', '/welcome/index'],

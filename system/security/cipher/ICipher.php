@@ -12,6 +12,6 @@ interface ICipher {
     /**
      * @param string $text
      * @return string decrypted text
-    */
+     */
     public function decrypt($text);
 }

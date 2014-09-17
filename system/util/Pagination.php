@@ -2,7 +2,7 @@
 
 namespace Hexagon\system\util;
 
-class Pagination{
+class Pagination {
 
     public $pageSize = 10;
     public $totalRecord = 0;
@@ -16,9 +16,9 @@ class Pagination{
     public $nextPage = NULL;
     public $prevPage = NULL;
     public $firstPage = NULL;
-    
+
     public $pagination;
-    
+
     /**
      * @param string $template
      * @param int $currentPage
@@ -34,23 +34,23 @@ class Pagination{
         $this->totalRecord = $totalRecord;
         $this->extraParam = $extraParam;
         $this->display = $display;
-        
+
         $extraParam['pageSize'] = $pageSize;
-        
+
         foreach ($extraParam as $k => $v) {
             $template = str_replace('(' . $k . ')', $v, $template);
         }
         $this->template = $template;
-        
+
         $totalPage = intval(ceil($totalRecord / $pageSize));
         $this->totalPage = $totalPage;
-        
+
         $pagination = [];
-        
+
         if ($totalPage > 0) {
             $left = ceil($display / 2);
             $right = ceil($display / 2) + 1;
-            
+
             for ($i = 0; $i < $left; $i++) {
                 $k = $currentPage - $i;
                 if ($k > 1) {
@@ -65,7 +65,7 @@ class Pagination{
                     break;
                 }
             }
-            
+
             for ($i = 1; $i < $right; $i++) {
                 $k = $currentPage + $i;
                 if ($k <= $totalPage) {
@@ -74,16 +74,16 @@ class Pagination{
                     break;
                 }
             }
-            
+
             ksort($pagination);
-            
+
             if (array_key_exists($currentPage + 1, $pagination)) {
                 $this->nextPage = $pagination[$currentPage + 1];
             }
             if (array_key_exists($currentPage - 1, $pagination)) {
                 $this->prevPage = $pagination[$currentPage - 1];
             }
-            
+
             if (array_key_exists(1, $pagination)) {
                 $this->firstPage = $pagination[1];
             } else {
@@ -93,7 +93,7 @@ class Pagination{
                     $this->firstPage = str_replace('(page)', 1, $template);
                 }
             }
-            
+
             if (array_key_exists($totalPage, $pagination)) {
                 $this->lastPage = $pagination[$totalPage];
             } else {
@@ -104,16 +104,16 @@ class Pagination{
                 }
             }
         }
-        
+
         $this->pagination = $pagination;
     }
-    
-    public function getPagination () {
+
+    public function getPagination() {
         return $this->pagination;
     }
-    
-    public function needPage () {
+
+    public function needPage() {
         return $this->totalPage > 0;
     }
-    
+
 }

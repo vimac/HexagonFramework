@@ -2,15 +2,13 @@
 
 namespace Hexagon\system\security\cipher;
 
-use Hexagon\Context;
+abstract class Cipher implements ICipher {
 
-abstract class Cipher implements ICipher{
-    
     /**
      * @var Cipher
      */
     protected static $d = null;
-    
+
     /**
      * @return Cipher
      */
@@ -21,5 +19,5 @@ abstract class Cipher implements ICipher{
         }
         return self::$d;
     }
-    
+
 }

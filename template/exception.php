@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<!--<?php print <<<EOT
+    <!--<?php print <<<EOT
 -->	
 	<meta charset="utf-8" />
 	<title>Hexagon Framework Debug Trace</title>
@@ -65,25 +65,29 @@ h2{font-size: 14px;margin: 6px 0;}
 
 <!--
 EOT;
-if(!empty($trace)){print <<<EOT
+    if (!empty($trace)) {
+        print <<<EOT
 -->
 	<div id="trace">
 		<h2>Stack</h2>
 		<ul id="trace_log">
 <!--
 EOT;
-foreach($trace as $value){print <<<EOT
+        foreach ($trace as $value) {
+            print <<<EOT
 -->
 <li>$value</li>
 <!--
 EOT;
-}print <<<EOT
+        }
+        print <<<EOT
 -->
 		</ul>
 		</div>
 <!--
 EOT;
-}print <<<EOT
+    }
+    print <<<EOT
 -->
 	
 	<div id="version">
@@ -95,4 +99,4 @@ EOT;
 </html>
 <!--
 EOT;
-?>-->
+    ?>-->
