@@ -39,7 +39,7 @@ trait ResultHelper {
      *            Do some special things by this function
      * @return Result
      */
-    protected static function _genPageResult($bindArrayData, $screenLocation = NULL, $layoutLocation = NULL, $contentType = Result::CONTENT_HTML, callable $callback = NULL) {
+    protected static function _genPageResult($bindArrayData = [], $screenLocation = NULL, $layoutLocation = NULL, $contentType = Result::CONTENT_HTML, callable $callback = NULL) {
         return new Result(Result::TYPE_PAGE, $bindArrayData, [
             'screen' => $screenLocation,
             'layout' => $layoutLocation
@@ -54,44 +54,44 @@ trait ResultHelper {
      * @param callable $callback callback function
      * @return Result
      */
-    protected static function _genTextResult($text, $contentType = Result::CONTENT_TEXT, callable $callback = NULL) {
+    protected static function _genTextResult($text = '', $contentType = Result::CONTENT_TEXT, callable $callback = NULL) {
         return new Result(Result::TYPE_TEXT, $text, NULL, $contentType, $callback);
     }
 
     /**
      * this result type return a simple json data to client side
      *
-     * @param string $data
+     * @param mixed $data array or object
      * @param string $contentType
      * @param callable $callback callback function
      * @return Result
      */
-    protected static function _genJSONResult($data, $contentType = Result::CONTENT_JSON, callable $callback = NULL) {
+    protected static function _genJSONResult($data = [], $contentType = Result::CONTENT_JSON, callable $callback = NULL) {
         return new Result(Result::TYPE_JSON, $data, NULL, $contentType, $callback);
     }
 
     /**
      * this result type return a simple xml data to client side
      *
-     * @param string $data
+     * @param mixed $data array or object
      * @param string $contentType
      * @param callable $callback callback function
      * @return Result
      */
-    protected static function _genXMLResult($data, $contentType = Result::CONTENT_XML, callable $callback = NULL) {
+    protected static function _genXMLResult($data = [], $contentType = Result::CONTENT_XML, callable $callback = NULL) {
         return new Result(Result::TYPE_XML, $data, NULL, $contentType);
     }
 
     /**
      * this result type return a simple json or xml data to client side by detect client's accept content type
      *
-     * @param mixed $data
+     * @param mixed $data array or object
      * @param string $type
      * @param callable $callback callback function
      * @return Result
      * @throws UnknownResultType
      */
-    protected static function _genRESTResult($data, $type = 'AUTO', callable $callback = NULL) {
+    protected static function _genRESTResult($data = [], $type = 'AUTO', callable $callback = NULL) {
         $type = strtoupper($type);
         if ($type === 'AUTO') {
             $request = HttpRequest::getCurrentRequest();

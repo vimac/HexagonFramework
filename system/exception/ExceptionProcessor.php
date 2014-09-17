@@ -68,7 +68,7 @@ class ExceptionProcessor {
          * set error handler if never set handler
          */
         if (!isset($this->handlerClass)) {
-            set_error_handler([self::$p, 'processError']);
+            set_error_handler([self::$p, 'processError'], error_reporting());
             set_exception_handler([self::$p, 'processException']);
             register_shutdown_function([self::$p, 'processFatal']);
         }
