@@ -11,8 +11,6 @@ class LogFilter {
      */
     private static $filter;
 
-    private $rule = [];
-
     private $reRule = [];
     private $reCache = [];
 
@@ -38,7 +36,9 @@ class LogFilter {
     }
 
     /**
-     * @return \Hexagon\system\log\LogFilter
+     * Get instance
+     *
+     * @return LogFilter
      */
     public static function getInstance() {
         if (!self::$filter) {
@@ -52,16 +52,14 @@ class LogFilter {
      *
      * @param string $class class name
      * @param string $method method name
-     * @return array
+     * @return \Generator
      */
     public function getLoggerInfo($class, $method) {
         $logIds = array_merge($this->allCache, $this->matchByWD($class, $method), $this->matchByRE($class, $method));
         $config = Context::$appConfig;
-        $logs = [];
         foreach ($logIds as $id) {
-            $logs[] = $config->logs[$id];
+            yield $config->logs[$id];
         }
-        return $logs;
     }
 
     /**
@@ -86,6 +84,13 @@ class LogFilter {
         return $this->reCache[$key];
     }
 
+    /**
+     * Filter by wildcard
+     *
+     * @param string $class class name
+     * @param string $method method name
+     * @return mixed
+     */
     private function matchByWD($class, $method) {
         $key = $class . '.' . $method;
         if (!isset($this->wdCache[$key])) {

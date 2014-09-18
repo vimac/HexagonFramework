@@ -61,10 +61,9 @@ class DefaultExceptionHandler extends ExceptionHandler {
 
         $file = str_replace(Context::$appBasePath, '', $file);
         if (HEXAGON_CLI_MODE) {
-            fwrite(STDOUT, date('[Y-m-d H:i:s] ') . $message . "($file:$line)" . PHP_EOL);
+            fwrite(STDOUT, date('[Y-m-d H:i:s] ') . $message . '(' . $file . ':' . $line . ')' . PHP_EOL);
         } else {
             require(implode(DIRECTORY_SEPARATOR, [Context::$frameworkPath, 'template', 'exception.php']));
-            exit();
         }
     }
 

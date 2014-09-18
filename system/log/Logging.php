@@ -18,7 +18,6 @@ trait Logging {
      * @param int $level log level
      * @param string $strLevel log level name,
      * @param Exception $ex exception obj
-     * @return void
      */
     protected static function _log($msg, $level = HEXAGON_LOG_LEVEL_DEBUG, $strLevel = 'DBG', Exception $ex = NULL) {
         $trace = debug_backtrace(FALSE)[2];
@@ -30,9 +29,7 @@ trait Logging {
         $line = isset($trace['line']) ? $trace['line'] : 0;
         $file = isset($trace['file']) ? basename($trace['file']) : '';
 
-        $logs = $filter->getLoggerInfo($class, $method);
-
-        foreach ($logs as $log) {
+        foreach ($filter->getLoggerInfo($class, $method) as $log) {
             $logLevel = $log['level'];
             if ($level & $logLevel) {
                 LogAppender::getInstance($log['appender'], $log['params'])->append(

@@ -4,9 +4,12 @@ namespace Hexagon\system\exception;
 
 use ErrorException;
 use Exception;
+use Hexagon\system\log\Logging;
 use Hexagon\system\result\Processor;
 
 class ExceptionProcessor {
+
+    use Logging;
 
     /**
      * @var string

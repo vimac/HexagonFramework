@@ -2,14 +2,22 @@
 
 namespace Hexagon\system\log;
 
+use Exception;
 use ReflectionClass;
 
 class LogAppender {
 
+    /**
+     * @var ILogAppender[]
+     */
     private static $appenders = null;
 
     /**
-     * Factory
+     * Factory method
+     *
+     * @param string $appender Appender name
+     * @param array $param Appender construct paramerters
+     * @return ILogAppender
      */
     public static function getInstance($appender, $param) {
         $key = $appender . json_encode($param);
@@ -20,5 +28,11 @@ class LogAppender {
         }
         return self::$appenders[$key];
     }
+
+}
+
+interface ILogAppender {
+
+    public function append($msg, Exception $ex = NULL);
 
 }

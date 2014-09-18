@@ -2,6 +2,8 @@
 
 namespace Hexagon\system\log;
 
+use Exception;
+
 /**
  * This class implements a standard out log appender
  *
@@ -9,8 +11,11 @@ namespace Hexagon\system\log;
  */
 class StandardOutputAppender {
 
-    public function append($msg) {
+    public function append($msg, Exception $ex = NULL) {
         fwrite(STDOUT, date('[Y-m-d H:i:s] ') . $msg . PHP_EOL);
+        if (isset($ex)) {
+            fwrite(STDOUT, $ex->getTraceAsString());
+        }
     }
 
 }
