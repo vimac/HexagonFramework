@@ -11,8 +11,6 @@ class LogFilter {
      */
     private static $filter;
     
-    private $rule = [];
-    
     private $reRule = [];
     private $reCache = [];
     
@@ -20,7 +18,7 @@ class LogFilter {
     private $wdCache = [];
     
     private $allCache = [];
-    
+
     private function __construct() {
         $config = Context::$appConfig;
         foreach ($config->logs as $idx => $log) {
@@ -46,7 +44,14 @@ class LogFilter {
         }
         return self::$filter;
     }
-    
+
+    /**
+     * Get available loggers by class and method name
+     *
+     * @param string $class class name
+     * @param string $method method name
+     * @return array
+     */
     public function getLoggerInfo($class, $method) {
         $logIds = array_merge($this->allCache, $this->matchByWD($class, $method), $this->matchByRE($class, $method));
         $config = Context::$appConfig;
@@ -56,7 +61,14 @@ class LogFilter {
         }
         return $logs;
     }
-    
+
+    /**
+     * Filter by regular expression
+     *
+     * @param string $class class name
+     * @param string $method method name
+     * @return mixed
+     */
     private function matchByRE($class, $method) {
         $key = $class . '.' . $method;
         if (!isset($this->reCache[$key])) {

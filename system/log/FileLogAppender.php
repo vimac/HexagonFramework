@@ -35,10 +35,7 @@ class FileLogAppender{
         @flock($this->f, LOCK_UN);
     }
     
-    /**
-     * 析构方法
-     */
-    public function __destruct(){
+    public function __destruct() {
         @fclose($this->f);
     }
 }

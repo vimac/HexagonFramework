@@ -3,7 +3,6 @@
 namespace Hexagon\system\log;
 
 use Exception;
-use Hexagon\Context;
 
 /**
  * Implementation of the logging system
@@ -17,10 +16,11 @@ trait Logging {
      *
      * @param mixed $msg text message or any object
      * @param int $level log level
-     * @param string $strLevel log level name
+     * @param string $strLevel log level name,
+     * @param Exception $ex exception obj
      * @return void
      */
-    protected static function _log($msg, $level = HEXAGON_LOG_LEVEL_DEBUG, $strLevel = 'DBG') {
+    protected static function _log($msg, $level = HEXAGON_LOG_LEVEL_DEBUG, $strLevel = 'DBG', Exception $ex = NULL) {
         $trace = debug_backtrace(FALSE)[2];
         $filter = LogFilter::getInstance();
 
@@ -39,7 +39,9 @@ trait Logging {
                     '[' . $strLevel . '] ' .
                     '[' . $class . $type . $method . '] ' .
                     ($line > 0 ? '[' . $file . ':' . $line . '] ' : '') .
-                    self::_dumpObj($msg)
+                    self::_dumpObj($msg),
+                    $level,
+                    $ex
                 );
             }
         }
@@ -47,58 +49,72 @@ trait Logging {
 
     /**
      * Log debug level message
+     *
      * @param mixed $msg text message or any object
+     * @param Exception $ex exception object
      */
-    protected static function _logDebug($msg) {
-        self::_log($msg, HEXAGON_LOG_LEVEL_DEBUG, 'DBG');
+    protected static function _logDebug($msg, Exception $ex = NULL) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_DEBUG, 'DBG', $ex);
     }
 
     /**
      * Log info level message
+     *
      * @param mixed $msg text message or any object
+     * @param Exception $ex exception object
      */
-    protected static function _logInfo($msg) {
-        self::_log($msg, HEXAGON_LOG_LEVEL_INFO, 'INF');
+    protected static function _logInfo($msg, Exception $ex = NULL) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_INFO, 'INF', $ex);
     }
 
     /**
      * Log warning level message
+     *
      * @param mixed $msg text message or any object
+     * @param Exception $ex exception object
      */
-    protected static function _logWarn($msg) {
-        self::_log($msg, HEXAGON_LOG_LEVEL_WARN, 'WRN');
+    protected static function _logWarn($msg, Exception $ex = NULL) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_WARN, 'WRN', $ex);
     }
 
     /**
      * Log error level message
+     *
      * @param mixed $msg text message or any object
+     * @param Exception $ex exception object
      */
-    protected static function _logErr($msg) {
-        self::_log($msg, HEXAGON_LOG_LEVEL_ERROR, 'ERR');
+    protected static function _logErr($msg, Exception $ex = NULL) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_ERROR, 'ERR', $ex);
     }
 
     /**
      * Log fatal level message
+     *
      * @param mixed $msg text message or any object
+     * @param Exception $ex exception object
      */
-    protected static function _logFatal($msg) {
-        self::_log($msg, HEXAGON_LOG_LEVEL_FATAL, 'FAT');
+    protected static function _logFatal($msg, Exception $ex = NULL) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_FATAL, 'FAT', $ex);
     }
 
     /**
      * Log notice level message
-     * @param mixed  $msg text message or any object
+     *
+     * @param mixed $msg text message or any object
+     * @param Exception $ex exception object
      */
-    protected static function _logNotice($msg) {
-        self::_log($msg, HEXAGON_LOG_LEVEL_NOTICE, 'NOTICE');
+    protected static function _logNotice($msg, Exception $ex = NULL) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_NOTICE, 'NTC', $ex);
     }
 
     /**
      * Log emergency level message
+     *
      * @param mixed $msg text message or any object
+     * @param Exception $ex exception object
      */
-    protected static function _logEmergency($msg) {
-        self::_log($msg, HEXAGON_LOG_LEVEL_NOTICE, 'EMERGENCY');
+    protected static function _logEmergency($msg, Exception $ex = NULL) {
+        self::_log($msg, HEXAGON_LOG_LEVEL_EMERGENCY, 'EMC', $ex);
     }
 
     /**
