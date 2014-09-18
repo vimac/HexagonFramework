@@ -2,21 +2,20 @@
 
 namespace Hexagon\system\uri;
 
-use Hexagon\system\log\Logging;
 use Hexagon\Context;
 use Hexagon\system\http\HttpRequest;
-use Hexagon\system\http\HttpResponse;
+use Hexagon\system\log\Logging;
 
 class Router {
-    
+
     use Logging;
-    
+
     /**
      * An instance of this class
      * @var Router
      */
     private static $r;
-    
+
     /**
      * Singleton
      * @var Router
@@ -27,28 +26,28 @@ class Router {
         }
         return self::$r;
     }
-    
+
     private function cleanURI($uri) {
         $queryString = $_SERVER['QUERY_STRING'];
         $queryStringLen = strlen($queryString);
         if ($queryStringLen > 0) {
-            $uri = substr($uri, 0, - $queryStringLen - 1);
+            $uri = substr($uri, 0, -$queryStringLen - 1);
         }
-        
+
         $scriptName = Context::$appEntryName;
         $scriptNameLen = strlen($scriptName);
         if (substr($uri, 1, $scriptNameLen) === $scriptName) {
             $uri = substr($uri, $scriptNameLen + 1);
         }
-        
+
         return $uri;
     }
-    
+
     private function parseURI() {
         $config = Context::$appConfig;
         $request = HttpRequest::getCurrentRequest();
         $uri = NULL;
-        
+
         if ($config->uriProtocol === HEXAGON_URI_PROTOCOL_AUTO) {
             $uri = $request->getPathInfo();
             if (empty($uri)) {
@@ -70,7 +69,7 @@ class Router {
                     break;
             }
         }
-        
+
         $urlInfo = parse_url($config->appUrl);
         if (isset($urlInfo['path']) && $urlInfo['path'] != '/') {
             $uriPrefix = rtrim($urlInfo['path'], '/');
@@ -79,10 +78,10 @@ class Router {
                 $uri = substr($uri, $uriPrefixLength);
             }
         }
-        
+
         return $uri;
     }
-    
+
     private function checkInvalid($uri) {
         static $reAllowedChars = '/[^a-zA-Z0-9_\/]/';
         $matches = [];
@@ -90,36 +89,36 @@ class Router {
             throw new InvalidURI($uri);
         }
     }
-    
+
     /**
      * Resolve
-     * 
+     *
      * @return array
      */
     public function resolveURI($uri = NULL) {
         $config = Context::$appConfig;
-        
+
         if (!isset($uri)) {
             $uri = $this->parseURI();
         }
-        
+
         $this->checkInvalid($uri);
-        
+
         $uri = preg_replace('/\/+/', '/', $uri);
-        
-        if (!$uri || $uri === '/' || $uri === '/'. Context::$appEntryName) {
+
+        if (!$uri || $uri === '/' || $uri === '/' . Context::$appEntryName) {
             $uri = $config->uriDefault;
         }
-        
+
         $uriParts = explode('/', $uri);
         if (count($uriParts) < 3) {
             $uri = dirname($config->uriDefault) . '/' . array_pop($uriParts);
         }
-        
+
         if ($uri[0] !== '/') {
             $uri = '/' . $uri;
         }
-        
+
         if (substr($uri, -1) === '/') {
             $uri = $uri . 'index';
         } else {
@@ -132,15 +131,15 @@ class Router {
                 }
             }
         }
-        
+
         $this->_logDebug('URI: ' . $uri);
-        
+
         return $uri;
     }
 }
 
-class InvalidURI extends \Exception{
+class InvalidURI extends \Exception {
     public function __construct($uri) {
-        parent::__construct('Invalid URI [' . $uri  . ']');
+        parent::__construct('Invalid URI [' . $uri . ']');
     }
 }

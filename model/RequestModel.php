@@ -8,16 +8,16 @@ abstract class RequestModel extends Model {
     const REQUEST_METHOD_POST = 0b00100;
     const REQUEST_METHOD_PUT = 0b01000;
     const REQUEST_METHOD_DELETE = 0b10000;
-    
+
     const REQUEST_METHOD_ALL_TYPE = 0b11111;
     const REQUEST_METHOD_GET_AND_POST = 0b00110;
     const REQUEST_METHOD_NONE = 0b00000;
-    
+
     protected static $_requestMethod = self::REQUEST_METHOD_ALL_TYPE;
-    
+
     private $_classNS;
     private $_method;
-    
+
     public function __construct($classNS = NULL, $method = NULL) {
         $this->_classNS = $classNS;
         $this->_method = $method;
@@ -48,7 +48,7 @@ abstract class RequestModel extends Model {
         $methodVal = constant('self::REQUEST_METHOD_' . $method);
         return $methodVal & static::$_requestMethod;
     }
-    
+
     /**
      * Return anything other than TRUE means not passed this check
      *
@@ -57,5 +57,5 @@ abstract class RequestModel extends Model {
     public function _checkParameters() {
         return TRUE;
     }
-    
+
 }

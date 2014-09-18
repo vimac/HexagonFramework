@@ -3,7 +3,7 @@
 namespace Hexagon\system\db;
 
 trait DBAgentHelper {
-    
+
     /**
      * Get a DBAgent instance
      *
@@ -13,5 +13,5 @@ trait DBAgentHelper {
     public static function _getDBAgent($name = 'default') {
         return DBAgentFactory::getDBAgent($name);
     }
-    
+
 }

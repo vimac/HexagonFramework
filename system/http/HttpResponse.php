@@ -4,17 +4,17 @@ namespace Hexagon\system\http;
 
 use Hexagon\Context;
 use Hexagon\system\log\Logging;
-use Hexagon\system\security\Security;
 use Hexagon\system\security\cipher\Cipher;
+use Hexagon\system\security\Security;
 
 /**
  * A class packing http response
  * @author Mac Chow, vifix.mac@gmail.com
  */
 class HttpResponse {
-    
+
     use Logging;
-    
+
     /**
      * Cipher
      * @var Cipher
@@ -32,35 +32,35 @@ class HttpResponse {
      * @var array
      */
     protected $cookie = [];
-    
+
     /**
      * Output Content
      * @var string
      */
     protected $content = NULL;
-    
+
     /**
      * Result Values
      * @var array
      */
     protected $values = [];
-    
+
     /**
      * @var HttpResponse
      */
     protected static $response = NULL;
-    
+
     /**
      * Return HttpResponse for current session
      * @return HttpResponse
      */
     public static function getCurrentResponse() {
-        if (self::$response == NULL){
+        if (self::$response == NULL) {
             self::$response = new self();
         }
         return self::$response;
     }
-    
+
     protected function __construct() {
         $this->cipher = Security::getCipher();
     }
@@ -85,7 +85,7 @@ class HttpResponse {
     public function setContentType($value) {
         $this->header['Content-Type'] = $value;
     }
-    
+
     /**
      * @param string $key
      * @param string $value
@@ -114,7 +114,7 @@ class HttpResponse {
     /**
      * Output http header
      */
-    public function outputHeaders(){
+    public function outputHeaders() {
         foreach ($this->header as $meta => $value) {
             header($meta . ': ' . $value);
         }
@@ -134,11 +134,11 @@ class HttpResponse {
      */
     public function setCookie($name, $value, $expire = NULL, $path = NULL, $domain = NULL, $secure = NULL) {
         $config = Context::$appConfig;
-        
+
         if ($config->cookieEncryption && $name !== $config->csrfTokenName) {
             $value = $this->cipher->encrypt($value);
         }
-        
+
         if ($expire === NULL) {
             $expire = $config->cookieLifetime;
         }
@@ -147,11 +147,11 @@ class HttpResponse {
         } else {
             $expire = strtotime($expire);
         }
-        
+
         if ($path === NULL) {
             $path = $config->cookiePath;
         }
-        
+
         if ($domain === NULL) {
             $domain = $config->cookieDomain;
             if (empty($domain)) {
@@ -159,27 +159,27 @@ class HttpResponse {
             }
         }
         $this->cookie[] = [
-                        'name' => $name,
-                        'value' => $value,
-                        'expire' => $expire,
-                        'path' => $path,
-                        'domain' => $domain,
-                        'secure' => $secure
+            'name' => $name,
+            'value' => $value,
+            'expire' => $expire,
+            'path' => $path,
+            'domain' => $domain,
+            'secure' => $secure
         ];
     }
-    
+
     public function getValues() {
         return $this->values;
     }
-    
+
     public function clearValues() {
         $this->values = [];
     }
-    
+
     public function bindValue($key, $val) {
         $this->values[$key] = $val;
     }
-    
+
     public function getValue($key) {
         return $this->values[$key];
     }

@@ -2,24 +2,24 @@
 
 namespace Hexagon\intercept;
 
-use \Exception;
-use \ReflectionClass;
-use \Hexagon\system\log\Logging;
-use \Hexagon\Context;
-use \Hexagon\system\result\Result;
+use Exception;
+use Hexagon\Context;
+use Hexagon\system\log\Logging;
+use Hexagon\system\result\Result;
+use ReflectionClass;
 
 class Interceptor {
-    
+
     use Logging;
-    
+
     private $preRules = [];
     private $postRules = [];
-    
+
     /**
      * @var Interceptor
      */
     protected static $i = null;
-    
+
     /**
      * @return Interceptor
      */

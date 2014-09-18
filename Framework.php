@@ -22,7 +22,7 @@ use Hexagon\system\uri\Dispatcher;
 use Hexagon\system\uri\Router;
 
 /**
- * Application Enviroment Context
+ * Application Environment Context
  */
 final class Context {
 

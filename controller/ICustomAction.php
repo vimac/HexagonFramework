@@ -11,5 +11,5 @@ interface ICustomAction {
      * @return mixed
      */
     public function _doAction();
-        
+
 }

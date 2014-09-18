@@ -3,13 +3,13 @@
 namespace Hexagon\widget;
 
 use Hexagon\Context;
-use Hexagon\system\log\Logging;
 use Hexagon\system\http\HttpResponse;
+use Hexagon\system\log\Logging;
 
 abstract class Widget {
-    
+
     use Logging;
-    
+
     /**
      * Widget main logic
      *
@@ -17,7 +17,7 @@ abstract class Widget {
      * @return array
      */
     public abstract function execute(array $userData = NULL);
-    
+
     /**
      * load widget and its default template
      *
@@ -34,7 +34,7 @@ abstract class Widget {
         self::_logDebug('Use widget template: ' . $relativeTemplate);
         return self::loadWithTemplate($userData, $relativeTemplate, $instance);
     }
-    
+
     /**
      * load widget and custom template
      *
@@ -51,7 +51,7 @@ abstract class Widget {
         } else {
             $w = new $className();
         }
-        
+
         if (!is_array($userData)) {
             if (is_null($userData)) {
                 $userData = [];
@@ -59,15 +59,15 @@ abstract class Widget {
                 $userData = ['userData' => $userData];
             }
         }
-        
+
         //$relativeTemplate = str_replace('/', DIRECTORY_SEPARATOR, $relativeTemplate); //this convert is not important on most OS
         $absoluteTemplate = Context::$appBasePath . DIRECTORY_SEPARATOR .
-                            'app' . DIRECTORY_SEPARATOR .
-                            'view' . DIRECTORY_SEPARATOR .
-                            'widget' . DIRECTORY_SEPARATOR .
-                            $relativeTemplate . '.php';
+            'app' . DIRECTORY_SEPARATOR .
+            'view' . DIRECTORY_SEPARATOR .
+            'widget' . DIRECTORY_SEPARATOR .
+            $relativeTemplate . '.php';
         if (file_exists($absoluteTemplate)) {
-            $func = function(Widget $_widget, $_className, $_templatePath, $_userData) {
+            $func = function (Widget $_widget, $_className, $_templatePath, $_userData) {
                 extract(HttpResponse::getCurrentResponse()->getValues());
                 $_result = $_widget->execute($_userData);
                 if (is_array($_result)) {
@@ -76,7 +76,7 @@ abstract class Widget {
                 require $_templatePath;
             };
             $func($w, $className, $absoluteTemplate, $userData);
-            
+
             return $w;
         } else {
             throw new WidgetTemplateNotFound($className);

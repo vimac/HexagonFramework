@@ -4,13 +4,13 @@ namespace Hexagon\system\security;
 
 use Hexagon\Context;
 use Hexagon\system\http\HttpRequest;
-use Hexagon\system\security\cipher\Cipher;
 use Hexagon\system\http\HttpResponse;
+use Hexagon\system\security\cipher\Cipher;
 
 class Security {
-    
+
     private static $csrfTokenHash = '';
-    
+
     /**
      * @return Cipher
      */
@@ -22,7 +22,7 @@ class Security {
             return NULL;
         }
     }
-    
+
     public static function vertifyCSRFToken() {
         if (count($_POST) === 0) {
             return self::setCSRFToken();
@@ -40,14 +40,14 @@ class Security {
         unset($_COOKIE[$token]);
         return self::setCSRFToken();
     }
-    
+
     public static function getCSRFTokenHash() {
         return self::$csrfTokenHash;
     }
-    
+
     public static function setCSRFToken() {
         $token = Context::$appConfig->csrfTokenName;
-        
+
         if (!isset($_COOKIE[$token])) {
             $hash = md5(uniqid(rand(), TRUE));
             self::$csrfTokenHash = $hash;
@@ -56,7 +56,7 @@ class Security {
             self::$csrfTokenHash = $_COOKIE[$token];
         }
     }
-    
+
 }
 
 class ForbiddenAccess extends \Exception {

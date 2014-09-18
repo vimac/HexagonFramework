@@ -2,15 +2,23 @@
 
 namespace Hexagon\system\uri;
 
-use \ReflectionClass;
-use \ReflectionMethod;
-use \ReflectionProperty;
-use \Exception;
-use \Hexagon\system\log\Logging;
-use \Hexagon\Context;
-use \Hexagon\system\http\HttpRequest;
-use \Hexagon\system\http\HttpResponse;
+use Exception;
+use Hexagon\Context;
+use Hexagon\system\http\HttpRequest;
+use Hexagon\system\http\HttpResponse;
+use Hexagon\system\log\Logging;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionParameter;
+use ReflectionProperty;
 
+
+/**
+ * Class Dispatcher
+ *
+ * @package Hexagon\system\uri
+ * @desc This class read URI analysed from Router and call instance of Controller or Task
+ */
 class Dispatcher {
     use Logging;
 
@@ -25,13 +33,11 @@ class Dispatcher {
     const TYPE_CLI_TASK = 1;
 
     /**
-     *
      * @var Dispatcher
      */
     protected static $d = null;
 
     /**
-     *
      * @return Dispatcher
      */
     public static function getInstance() {
@@ -41,12 +47,21 @@ class Dispatcher {
         return self::$d;
     }
 
+    /**
+     * Execute the default action
+     *
+     * @param string $classNS target class namespace
+     * @param string $method method name
+     * @return mixed
+     * @throws MethodNameNotAllowed
+     * @throws MissingMethod
+     */
     private function doAction($classNS, $method) {
         if ($method[0] === '_') {
             throw new MethodNameNotAllowed($method, $classNS);
         }
         $refCon = new ReflectionClass($classNS);
-        
+
         if ($refCon->hasMethod($method)) {
             return $this->invokeMethod($method, $classNS, $refCon);
         } else {
@@ -58,21 +73,31 @@ class Dispatcher {
         }
     }
 
+
+    /**
+     * Execute the controller method
+     *
+     * @param string $method target method name
+     * @param string $classNS target class namespace
+     * @param ReflectionClass $refCon the reflection
+     * @return mixed
+     * @throws MissingMethod
+     */
     private function invokeMethod($method, $classNS, ReflectionClass $refCon) {
         $refMethod = $refCon->getMethod($method);
-        
+
         $request = HttpRequest::getCurrentRequest();
-        
+
         if ($refMethod->getModifiers() & ReflectionMethod::IS_PUBLIC) {
             $refParams = $refMethod->getParameters();
             $firstParam = current($refParams);
-            
+
             if (count($refParams) === 1 && $firstParam->getClass() !== NULL && $firstParam->getClass()->isSubclassOf('\Hexagon\model\RequestModel')) {
                 $params = $this->buildMethodRequestModelParameters($firstParam, $method, $classNS, $request);
             } else {
                 $params = $this->buildMethodArrayParameters($refParams, $method, $classNS, $request);
             }
-            
+
             $instance = $refCon->newInstance($request, HttpResponse::getCurrentResponse());
             $this->invokeMagicMethods('pre', $refCon, $instance, $params);
             $ret = $refMethod->invokeArgs($instance, $params);
@@ -87,12 +112,22 @@ class Dispatcher {
         }
     }
 
-    private function buildMethodArrayParameters($refParams, $method, $classNS, HttpRequest $request) {
+    /**
+     * Build the method normal parameters
+     *
+     * @param ReflectionParameter[] $refParams ReflectionParameter[]
+     * @param string $method Method name
+     * @param string $classNS Class namespace
+     * @param HttpRequest $request Http request instance
+     * @return array
+     * @throws MissingParameter
+     */
+    private function buildMethodArrayParameters(array $refParams, $method, $classNS, HttpRequest $request) {
         $params = [];
         foreach ($refParams as $refParam) {
             $paramName = $refParam->getName();
             $paramPos = $refParam->getPosition();
-            
+
             if (!$refParam->isOptional()) {
                 if (!$request->hasParameter($paramName)) {
                     throw new MissingParameter($paramName, $method, $classNS);
@@ -109,33 +144,52 @@ class Dispatcher {
         return $params;
     }
 
-    private function buildMethodRequestModelParameters($firstParam, $method, $classNS, HttpRequest $request) {
+    /**
+     * Build the method RequestModel parameter
+     *
+     * @param ReflectionParameter $firstParam The reflection object
+     * @param string $method target method
+     * @param string $classNS target namespace
+     * @param HttpRequest $request the request instance
+     * @return array
+     * @throws CheckNotPassed
+     * @throws MethodNotAllowd
+     */
+    private function buildMethodRequestModelParameters(ReflectionParameter $firstParam, $method, $classNS, HttpRequest $request) {
         $refClass = $firstParam->getClass();
         $requestModel = $refClass->newInstance($classNS, $method);
-        
+
         $refCheckAllowedMethod = $refClass->getMethod('_checkAllowedMethod');
         if (!$refCheckAllowedMethod->invoke(NULL)) {
             throw new MethodNotAllowd($method, $classNS);
         }
-        
+
         $vars = $refClass->getProperties(ReflectionProperty::IS_PUBLIC);
         foreach ($vars as $var) {
             $varName = $var->getName();
-            
+
             if ($request->hasParameter($varName)) {
                 $requestModel->$varName = $request->getParameter($varName);
             }
         }
-        
+
         $refCheckParameters = $refClass->getMethod('_checkParameters');
         $checkResult = $refCheckParameters->invoke($requestModel);
         if ($checkResult !== TRUE) {
             throw new CheckNotPassed($method, $classNS);
         }
-        
+
         return [$requestModel];
     }
 
+    /**
+     * Execute the magic methods
+     *
+     * @param string $name name
+     * @param ReflectionClass $reflect ReflectionClass object
+     * @param object $instance Controller or Task instance
+     * @param array $params Parameters
+     */
     private function invokeMagicMethods($name, ReflectionClass $reflect, $instance, $params) {
         $name = '_' . $name;
         if ($reflect->hasMethod($name)) {
@@ -143,6 +197,14 @@ class Dispatcher {
         }
     }
 
+    /**
+     * Invoke
+     *
+     * @param string $uri target uti
+     * @param int $type type
+     * @return mixed
+     * @throws Exception
+     */
     public function invoke($uri, $type = Self::TYPE_WEB_CONTROLLER) {
         $parts = explode('/', $uri);
         if (empty($parts[0])) {
@@ -163,11 +225,11 @@ class Dispatcher {
         }
         array_push($parts, $className);
         $classNS = join('\\', $parts);
-        
+
         $this->method = $method;
         $this->className = $className;
         $this->classNS = $classNS;
-        
+
         return $this->doAction($classNS, $method);
     }
 

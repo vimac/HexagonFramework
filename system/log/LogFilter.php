@@ -2,21 +2,23 @@
 
 namespace Hexagon\system\log;
 
-use \Hexagon\Context;
+use Hexagon\Context;
 
 class LogFilter {
-    
+
     /**
      * @var LogFilter
      */
     private static $filter;
-    
+
+    private $rule = [];
+
     private $reRule = [];
     private $reCache = [];
-    
+
     private $wdRule = [];
     private $wdCache = [];
-    
+
     private $allCache = [];
 
     private function __construct() {
@@ -34,7 +36,7 @@ class LogFilter {
             }
         }
     }
-    
+
     /**
      * @return \Hexagon\system\log\LogFilter
      */
@@ -80,10 +82,10 @@ class LogFilter {
             }
             $this->reCache[$key] = $result;
         }
-        
+
         return $this->reCache[$key];
     }
-    
+
     private function matchByWD($class, $method) {
         $key = $class . '.' . $method;
         if (!isset($this->wdCache[$key])) {
@@ -97,5 +99,5 @@ class LogFilter {
         }
         return $this->wdCache[$key];
     }
-    
+
 }
