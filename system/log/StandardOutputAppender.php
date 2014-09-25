@@ -11,7 +11,7 @@ use Exception;
  */
 class StandardOutputAppender {
 
-    public function append($msg, Exception $ex = NULL) {
+    public function append($level, $msg, Exception $ex = NULL) {
         fwrite(STDOUT, date('[Y-m-d H:i:s] ') . $msg . PHP_EOL);
         if (isset($ex)) {
             fwrite(STDOUT, $ex->getTraceAsString());

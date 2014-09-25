@@ -33,6 +33,6 @@ class LogAppender {
 
 interface ILogAppender {
 
-    public function append($msg, Exception $ex = NULL);
+    public function append($level, $msg, Exception $ex = NULL);
 
 }

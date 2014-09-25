@@ -28,7 +28,7 @@ class FileLogAppender implements ILogAppender {
         }
     }
 
-    public function append($msg, Exception $ex = NULL) {
+    public function append($level, $msg, Exception $ex = NULL) {
         if (!$this->f) {
             @$this->f = fopen($this->logFile, 'a');
         }

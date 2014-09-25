@@ -157,27 +157,24 @@ final class Framework {
         Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
         Context::$testing = $testMode;
 
+        $mode = $this->getMode();
+        Context::$mode = $mode;
+        if ($mode) {
+            $configClassPrefix = ucfirst($mode);
+        } else {
+            $configClassPrefix = '';
+        }
+
         if (isset($defConfig)) {
             $configClass = $defConfig;
         } else {
-            $modeLock = current(glob($appBasePath . DIRECTORY_SEPARATOR . '*.lock'));
-            if ($modeLock) {
-                $mode = ucfirst(pathinfo($modeLock, PATHINFO_FILENAME));
-            } else {
-                $mode = FALSE;
-            }
-            if ($mode &&
-                file_exists(
-                    $appBasePath . DIRECTORY_SEPARATOR . 'app' .
-                    DIRECTORY_SEPARATOR . 'config' .
-                    DIRECTORY_SEPARATOR . $mode . 'Config.php')
-            ) {
-                $configClass = $appNS . '\app\config\\' . $mode . 'Config';
-                Context::$mode = $mode;
+            if ($mode && file_exists(implode(DIRECTORY_SEPARATOR, [$appBasePath, 'app', 'config', $configClassPrefix . 'Config.php']))) {
+                $configClass = $appNS . '\app\config\\' . $configClassPrefix . 'Config';
             } else {
                 $configClass = $appNS . '\app\config\Config';
             }
         }
+
         $config = $configClass::getInstance();
         Context::$appConfig = $config;
 
@@ -275,11 +272,30 @@ final class Framework {
         exit($code);
     }
 
+    /**
+     * Get application enviroment
+     *
+     * @return mixed "dev", "production", "test", "local" or any user defined value, or false when no set
+     */
+    public function getMode() {
+        if (isset($_SERVER['HEXAGON_MODE'])) {
+            $mode = $_SERVER['HEXAGON_MODE'];
+        } else {
+            $modeLock = current(glob(Context::$appBasePath . DIRECTORY_SEPARATOR . '*.lock'));
+            if ($modeLock) {
+                $mode = ucfirst(pathinfo($modeLock, PATHINFO_FILENAME));
+            } else {
+                $mode = FALSE;
+            }
+        }
+        return $mode;
+    }
+
     private function __construct() {
         // do nothing
     }
 
     public function __destruct() {
-        self::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(TRUE) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs');
+        @self::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(TRUE) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs');
     }
 }

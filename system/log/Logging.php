@@ -33,11 +33,11 @@ trait Logging {
             $logLevel = $log['level'];
             if ($level & $logLevel) {
                 LogAppender::getInstance($log['appender'], $log['params'])->append(
+                    $level,
                     '[' . $strLevel . '] ' .
                     '[' . $class . $type . $method . '] ' .
                     ($line > 0 ? '[' . $file . ':' . $line . '] ' : '') .
                     self::_dumpObj($msg),
-                    $level,
                     $ex
                 );
             }
