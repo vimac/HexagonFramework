@@ -182,6 +182,10 @@ class Processor {
         }
     }
 
+    public function processCUSTOM(Result $result) {
+        echo $result->data;
+    }
+
     public function processResult(Result $result) {
         $response = HttpResponse::getCurrentResponse();
         $response->setContentType($result->contentType);
