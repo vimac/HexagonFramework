@@ -54,6 +54,20 @@ class TemplateHelper {
         $func(HttpRequest::getCurrentRequest(), HttpResponse::getCurrentResponse(), $panelPath, $this);
     }
 
+    public function buildHTML($template, $data) {
+        $templateRoot = Context::$appBasePath . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . 'template';
+        $func = function ($_path, $data) {
+            ob_start();
+            extract($data);
+            require $_path;
+            $result = ob_get_contents();
+            ob_clean();
+            return $result;
+        };
+        $absolutePath = $templateRoot . DIRECTORY_SEPARATOR . $template . ".php";
+        return $func($absolutePath, $data);
+    }
+
     public function formOpen($action, $method = 'POST', $attrs = []) {
         echo \Hexagon\formOpen($action, $method, $attrs);
     }
