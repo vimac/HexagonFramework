@@ -23,14 +23,15 @@ class DefaultExceptionHandler extends ExceptionHandler {
         $file = isset($trace[0]['file']) ? $trace[0]['file'] : 'internal';
         $line = isset($trace[0]['line']) ? $trace[0]['line'] : 1;
 
-        $this->msg($ex->getMessage(), $file, $line, $trace, $ex->getCode());
+        return $this->_genHTMLResult($this->msg($ex->getMessage(), $file, $line, $trace, $ex->getCode()));
     }
 
     public function handleFatal($error, $message, $file, $line) {
         if (ob_get_level() !== 0) {
             ob_end_clean();
         }
-        $this->msg($message, $file, $line, [], $error);
+
+        return $this->_genHTMLResult($this->msg($message, $file, $line, [], $error));
     }
 
     /**
@@ -41,6 +42,7 @@ class DefaultExceptionHandler extends ExceptionHandler {
      * @param int $line line
      * @param array $trace trace
      * @param int $errorcode error code
+     * @return mixed
      */
     public function msg($message, $file, $line, $trace, $errorcode) {
         $log = $message . "\r\n" . str_replace(Context::$appBasePath, '', $file) . ":" . $line . "\r\n";
@@ -63,7 +65,22 @@ class DefaultExceptionHandler extends ExceptionHandler {
         if (HEXAGON_CLI_MODE) {
             fwrite(STDOUT, date('[Y-m-d H:i:s] ') . $message . '(' . $file . ':' . $line . ')' . PHP_EOL);
         } else {
-            require(implode(DIRECTORY_SEPARATOR, [Context::$frameworkPath, 'template', 'exception.php']));
+            $tpl = function ($_path, $data) {
+                ob_start();
+                extract($data);
+                require $_path;
+                $result = ob_get_contents();
+                ob_clean();
+                return $result;
+            };
+
+            return $tpl(implode(DIRECTORY_SEPARATOR, [Context::$frameworkPath, 'template', 'exception.php']), [
+                "message" => $message,
+                "file" => $file,
+                "fileLineLog" => $fileLineLog,
+                "trace" => $trace,
+                "line" => $line
+            ]);
         }
     }
 

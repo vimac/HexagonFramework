@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <!--<?php print <<<EOT
--->	
+
 	<meta charset="utf-8" />
 	<title>Hexagon Framework Debug Trace</title>
 
@@ -55,40 +54,24 @@ h2{font-size: 14px;margin: 6px 0;}
 
     <h1>Hexagon Framework Debug Trace</h1>
 	<div id="inner">
-		<p style='font-size: 14px'>$message <span class="gray">on $file ($line)</span></p>
+		<p style='font-size: 14px'><?=$message?> <span class="gray">on <?=$file?> (<?=$line?>)</span></p>
 		<p class="gray">If you do not understand this message, the message can be sent to the site administrator.</p>
 	</div>
 	
 	<div id="where">
-	   <ul>$fileLineLog</ul>
+	   <ul><?=$fileLineLog?></ul>
 	</div>
 
-<!--
-EOT;
-    if (!empty($trace)) {
-        print <<<EOT
--->
+    <?php if(!empty($trace)): ?>
 	<div id="trace">
 		<h2>Stack</h2>
 		<ul id="trace_log">
-<!--
-EOT;
-        foreach ($trace as $value) {
-            print <<<EOT
--->
-<li>$value</li>
-<!--
-EOT;
-        }
-        print <<<EOT
--->
+            <?php foreach($trace as $value): ?>
+            <li><?=$value?></li>
+            <?php endforeach; ?>
 		</ul>
-		</div>
-<!--
-EOT;
-    }
-    print <<<EOT
--->
+	</div>
+    <?php endif; ?>
 	
 	<div id="version">
 	   Hexagon Framework
@@ -97,6 +80,3 @@ EOT;
 
 </body>
 </html>
-<!--
-EOT;
-    ?>-->

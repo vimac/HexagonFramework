@@ -96,13 +96,9 @@ trait Logging {
 
     /**
      * Log notice level message
-<<<<<<< HEAD
      *
      * @param mixed $msg text message or any object
      * @param Exception $ex exception object
-=======
-     * @param mixed $msg text message or any object
->>>>>>> 0614766b361b41cabbbfd8d56bac59ff29fb7b30
      */
     protected static function _logNotice($msg, Exception $ex = NULL) {
         self::_log($msg, HEXAGON_LOG_LEVEL_NOTICE, 'NTC', $ex);

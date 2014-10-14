@@ -55,12 +55,13 @@ class ExceptionProcessor {
 
         if (!empty($lastError) && isset($this->handlerClass)) {
             if (in_array($lastError['type'], $dispArr)) {
-                $clssName = $this->handlerClass;
                 $handler = new $this->handlerClass();
 
                 if (method_exists($handler, "handleFatal")) {
-                    $handler->handleFatal($lastError['type'], $lastError['message'],
+                    $result = $handler->handleFatal($lastError['type'], $lastError['message'],
                         $lastError['file'], $lastError['line']);
+
+                    Processor::getInstance()->processResult($result);
                 }
             }
         }
