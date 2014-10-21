@@ -46,6 +46,19 @@ class HttpResponse {
     protected $values = [];
 
     /**
+     * response code
+     * @var int
+     */
+    protected $responseCode = 200;
+
+    /**
+     * Http Protocol Version
+     *
+     * @var string
+     */
+    protected $httpVersion = "1.1";
+
+    /**
      * @var HttpResponse
      */
     protected static $response = NULL;
@@ -95,6 +108,34 @@ class HttpResponse {
     }
 
     /**
+     * @param int $code
+     */
+    public function setResponseCode($code = 200) {
+        $this->responseCode = $code;
+    }
+
+    /**
+     * @return int
+     */
+    public function getResponseCode() {
+        return $this->responseCode;
+    }
+
+    /**
+     * @param string $version
+     */
+    public function setHttpVersion($version = "1.1") {
+        $this->httpVersion = $version;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHttpVersion() {
+        return $this->httpVersion;
+    }
+
+    /**
      * Reset headers, cookies and content
      */
     public function reset() {
@@ -115,6 +156,14 @@ class HttpResponse {
      * Output http header
      */
     public function outputHeaders() {
+        $code = $this->responseCode;
+        $version = $this->httpVersion;
+        if (!isset(HttpCode::$message[$code])) {
+            $code = 500;
+        }
+        $msg = HttpCode::$message[$code];
+
+        header("HTTP/$version $code $msg");
         foreach ($this->header as $meta => $value) {
             header($meta . ': ' . $value);
         }
