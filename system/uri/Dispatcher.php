@@ -153,7 +153,7 @@ class Dispatcher {
      * @param HttpRequest $request the request instance
      * @return array
      * @throws CheckNotPassed
-     * @throws MethodNotAllowd
+     * @throws MethodNotAllowed
      */
     private function buildMethodRequestModelParameters(ReflectionParameter $firstParam, $method, $classNS, HttpRequest $request) {
         $refClass = $firstParam->getClass();
@@ -161,7 +161,7 @@ class Dispatcher {
 
         $refCheckAllowedMethod = $refClass->getMethod('_checkAllowedMethod');
         if (!$refCheckAllowedMethod->invoke(NULL)) {
-            throw new MethodNotAllowd($method, $classNS);
+            throw new MethodNotAllowed($method, $classNS);
         }
 
         $vars = $refClass->getProperties(ReflectionProperty::IS_PUBLIC);
@@ -243,7 +243,7 @@ class MethodNameNotAllowed extends Exception {
 
 }
 
-class MethodNotAllowd extends Exception {
+class MethodNotAllowed extends Exception {
 
     public function __construct($method, $classNS) {
         parent::__construct('Current HTTP request method "' . $_SERVER['REQUEST_METHOD'] . '" to [' . $classNS . '->' . $method . '] not allowed.', 400);
