@@ -246,7 +246,7 @@ class MethodNameNotAllowed extends Exception {
 class MethodNotAllowed extends Exception {
 
     public function __construct($method, $classNS) {
-        parent::__construct('Current HTTP request method "' . $_SERVER['REQUEST_METHOD'] . '" to [' . $classNS . '->' . $method . '] not allowed.', 400);
+        parent::__construct('Current HTTP request method "' . $_SERVER['REQUEST_METHOD'] . '" to [' . $classNS . '->' . $method . '] not allowed.', 405);
         $response = HttpResponse::getCurrentResponse();
         $response->setResponseCode(405);
     }
