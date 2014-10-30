@@ -85,6 +85,7 @@ trait ResultHelper {
     /**
      * this result type return a simple json or xml data to client side by detect client's accept content type
      *
+     * @deprecated see _genSmartResult
      * @param mixed $data array or object
      * @param string $type
      * @param callable $callback callback function
@@ -108,7 +109,7 @@ trait ResultHelper {
 
     /**
      * Generate a smart result, which relay the request content type
-     * (support PageResult and JSONResult)
+     * (support PageResult, XMLResult JSONResult)
      *
      * @param mixed $data array or object
      * @param string $screenLocation screen location (only available in PageResult)
@@ -118,10 +119,14 @@ trait ResultHelper {
      * @return Result
      */
     protected static function _genSmartResult($data = [], $screenLocation = NULL, $layoutLocation = NULL, $contentType = NULL, Callable $callback = NULL) {
-        $contentType = empty($contentType) ? Result::CONTENT_HTML : $contentType;
-        if (strpos(HttpRequest::getCurrentRequest()->getAccept(), 'json') > -1) {
+        if (stripos(HttpRequest::getCurrentRequest()->getAccept(), 'json') > -1) {
+            $contentType = empty($contentType) ? Result::CONTENT_JSON : $contentType;
             return self::_genJSONResult($data, $contentType, $callback);
+        } elseif (stripos(HttpRequest::getCurrentRequest()->getAccept(), 'xml') > -1) {
+            $contentType = empty($contentType) ? Result::CONTENT_XML : $contentType;
+            return self::_genXMLResult($data, $contentType, $callback);
         } else {
+            $contentType = empty($contentType) ? Result::CONTENT_HTML : $contentType;
             return self::_genPageResult($data, $screenLocation, $layoutLocation, $contentType, $callback);
         }
     }
