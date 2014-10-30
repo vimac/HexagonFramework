@@ -118,6 +118,7 @@ trait ResultHelper {
      * @return Result
      */
     protected static function _genSmartResult($data = [], $screenLocation = NULL, $layoutLocation = NULL, $contentType = NULL, Callable $callback = NULL) {
+        $contentType = empty($contentType) ? Result::CONTENT_HTML : $contentType;
         if (strpos(HttpRequest::getCurrentRequest()->getAccept(), 'json') > -1) {
             return self::_genJSONResult($data, $contentType, $callback);
         } else {
