@@ -109,7 +109,7 @@ trait ResultHelper {
 
     /**
      * Generate a smart result, which relay the request content type
-     * (support PageResult, XMLResult JSONResult)
+     * (support PageResult, JSONResult, not support XML yet)
      *
      * @param mixed $data array or object
      * @param string $screenLocation screen location (only available in PageResult)
@@ -122,9 +122,6 @@ trait ResultHelper {
         if (stripos(HttpRequest::getCurrentRequest()->getAccept(), 'json') > -1) {
             $contentType = empty($contentType) ? Result::CONTENT_JSON : $contentType;
             return self::_genJSONResult($data, $contentType, $callback);
-        } elseif (stripos(HttpRequest::getCurrentRequest()->getAccept(), 'xml') > -1) {
-            $contentType = empty($contentType) ? Result::CONTENT_XML : $contentType;
-            return self::_genXMLResult($data, $contentType, $callback);
         } else {
             $contentType = empty($contentType) ? Result::CONTENT_HTML : $contentType;
             return self::_genPageResult($data, $screenLocation, $layoutLocation, $contentType, $callback);
