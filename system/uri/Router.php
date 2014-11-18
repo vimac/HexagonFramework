@@ -19,6 +19,7 @@ class Router {
     /**
      * Singleton
      * @var Router
+     * @return \Hexagon\system\uri\Router
      */
     public static function getInstance() {
         if (self::$r == null) {
@@ -93,9 +94,13 @@ class Router {
     /**
      * Resolve
      *
+     * @param string $uri
+     * @throws InvalidURI
      * @return array
      */
     public function resolveURI($uri = NULL) {
+        Context::$eventDispatcher->dispatch('HF::onResolveURI');
+
         $config = Context::$appConfig;
 
         if (!isset($uri)) {

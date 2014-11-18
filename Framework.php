@@ -212,6 +212,8 @@ final class Framework {
             Context::$eventDispatcher->addSubscriber($eventSubscriberName);
         }
 
+        Context::$eventDispatcher->dispatch('HF::onInited');
+
         return $this;
     }
 
@@ -284,6 +286,7 @@ final class Framework {
     }
 
     public function stop($code = 0, $msg = '', $func = NULL) {
+        Context::$eventDispatcher->dispatch('HF::onStop');
         if (!empty($msg)) {
             self::_logInfo('End the response. msg: ' . $msg);
         } else {
@@ -316,6 +319,7 @@ final class Framework {
     }
 
     public function __destruct() {
+        Context::$eventDispatcher->dispatch('HF::onExit');
         @self::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(TRUE) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs');
     }
 }
