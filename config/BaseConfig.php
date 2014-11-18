@@ -42,6 +42,9 @@ class BaseConfig {
 
     public $interceptRules = [];
 
+    public $defaultEventDispatcher = '\Hexagon\event\EventDispatcher';
+    public $defaultEventSubscriber = NULL;
+
     /**
      * An instance of this class
      * @var BaseConfig

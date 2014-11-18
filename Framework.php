@@ -12,6 +12,8 @@ require 'Common.php';
 require 'Functions.php';
 
 use Exception;
+use Hexagon\config\BaseConfig;
+use Hexagon\event\EventDispatcherInterface;
 use Hexagon\intercept\Interceptor;
 use Hexagon\system\exception\ExceptionProcessor;
 use Hexagon\system\log\Logging;
@@ -42,7 +44,12 @@ final class Context {
     public static $testing = FALSE;
 
     /**
-     * @var \Hexagon\config\BaseConfig
+     * @var EventDispatcherInterface
+     */
+    public static $eventDispatcher;
+
+    /**
+     * @var BaseConfig
      */
     public static $appConfig = NULL;
 
@@ -168,7 +175,10 @@ final class Framework {
         if (isset($defConfig)) {
             $configClass = $defConfig;
         } else {
-            if ($mode && file_exists(implode(DIRECTORY_SEPARATOR, [$appBasePath, 'app', 'config', $configClassPrefix . 'Config.php']))) {
+            if ($mode && file_exists(implode(DIRECTORY_SEPARATOR, [
+                    $appBasePath, 'app', 'config', $configClassPrefix . 'Config.php'
+                ]))
+            ) {
                 $configClass = $appNS . '\app\config\\' . $configClassPrefix . 'Config';
             } else {
                 $configClass = $appNS . '\app\config\Config';
@@ -190,6 +200,16 @@ final class Framework {
 
         if (!$testMode) {
             $this->setDefaultErrorHandler();
+        }
+
+        if (isset($config->defaultEventDispatcher)) {
+            $dispatcherName = $config->defaultEventDispatcher;
+            Context::$eventDispatcher = new $dispatcherName();
+        }
+
+        if (isset($config->defaultEventSubscriber) && isset(Context::$eventDispatcher)) {
+            $eventSubscriberName = $config->defaultEventSubscriber;
+            Context::$eventDispatcher->addSubscriber($eventSubscriberName);
         }
 
         return $this;
