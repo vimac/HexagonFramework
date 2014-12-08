@@ -244,7 +244,14 @@ final class Framework {
             ob_start();
         }
 
-        $interceptResult = Interceptor::getInstance()->commitPreRules();
+        /**
+         * FIXME
+         * need refactor
+         */
+        $interceptResult = NULL;
+        Context::$eventDispatcher->addListener('HF::controllerWillInit', function() use (&$interceptResult) {
+            $interceptResult = Interceptor::getInstance()->commitPreRules();
+        });
 
         // check pre interceptor rule results
         if (!isset($interceptResult)) {

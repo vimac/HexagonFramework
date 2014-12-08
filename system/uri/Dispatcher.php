@@ -4,6 +4,7 @@ namespace Hexagon\system\uri;
 
 use Exception;
 use Hexagon\Context;
+use Hexagon\event\Event;
 use Hexagon\system\http\HttpRequest;
 use Hexagon\system\http\HttpResponse;
 use Hexagon\system\log\Logging;
@@ -91,16 +92,25 @@ class Dispatcher {
         if ($refMethod->getModifiers() & ReflectionMethod::IS_PUBLIC) {
             $refParams = $refMethod->getParameters();
             $firstParam = current($refParams);
+            /**
+             * FIXME need refactor
+             */
+            $event = new DispatcherEvent($classNS, $method);
+            Context::$eventDispatcher->dispatch("HF::controllerWillInit", $event);
+            $instance = $refCon->newInstance($request, HttpResponse::getCurrentResponse());
+            $event->setObjInstance($instance);
+            Context::$eventDispatcher->dispatch("HF::controllerInited", $event);
 
             if (count($refParams) === 1 && $firstParam->getClass() !== NULL && $firstParam->getClass()->isSubclassOf('\Hexagon\model\RequestModel')) {
                 $params = $this->buildMethodRequestModelParameters($firstParam, $method, $classNS, $request);
             } else {
                 $params = $this->buildMethodArrayParameters($refParams, $method, $classNS, $request);
             }
-
-            $instance = $refCon->newInstance($request, HttpResponse::getCurrentResponse());
+            $event->setParams($params);
             $this->invokeMagicMethods('pre', $refCon, $instance, $params);
+            Context::$eventDispatcher->dispatch("HF::controllerMethodWillCall", $event);
             $ret = $refMethod->invokeArgs($instance, $params);
+            Context::$eventDispatcher->dispatch("HF::controllerCalled", $event);
             $this->invokeMagicMethods('post', $refCon, $instance, $params);
             if (is_null($ret)) {
                 return NULL;
@@ -231,6 +241,61 @@ class Dispatcher {
         $this->classNS = $classNS;
 
         return $this->doAction($classNS, $method);
+    }
+
+}
+
+class DispatcherEvent extends Event {
+    private $className;
+    private $objInstance;
+    private $methodName;
+    private $params;
+
+    public function __construct($className, $methodName) {
+        $this->className = $className;
+        $this->methodName = $methodName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName() {
+        return $this->className;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getObjInstance() {
+        return $this->objInstance;
+    }
+
+    /**
+     * @param mixed $objInstance
+     */
+    public function setObjInstance($objInstance) {
+        $this->objInstance = $objInstance;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMethodName() {
+        return $this->methodName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParams() {
+        return $this->params;
+    }
+
+    /**
+     * @param mixed $params
+     */
+    public function setParams($params) {
+        $this->params = $params;
     }
 
 }
