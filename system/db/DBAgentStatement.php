@@ -19,7 +19,7 @@ class DBAgentStatement {
 
     private static $paramNames = [
         PDO::PARAM_BOOL => 'PARAM_BOOL',
-        PDO::PARAM_INT => 'PARAM_LOB',
+        PDO::PARAM_INT => 'PARAM_INT',
         PDO::PARAM_STMT => 'PARAM_STMT',
         PDO::PARAM_STR => 'PARAM_STR',
         PDO::PARAM_NULL => 'PARAM_NULL',
