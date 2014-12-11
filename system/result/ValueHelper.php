@@ -15,6 +15,10 @@ trait ValueHelper {
         return $this->response->getValues();
     }
 
+    protected function _unbindValue($key) {
+        return $this->response->unbindValue($key);
+    }
+
     protected function _clearValues() {
         return $this->response->clearValues();
     }

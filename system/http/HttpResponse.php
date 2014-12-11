@@ -233,4 +233,10 @@ class HttpResponse {
         return isset($this->values[$key]) ? $this->values[$key] : NULL;
     }
 
+    public function unbindValue($key) {
+        if (isset($this->values[$key])) {
+            unset($this->values[$key]);
+        }
+    }
+
 }
