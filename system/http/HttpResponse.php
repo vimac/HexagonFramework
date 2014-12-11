@@ -230,7 +230,7 @@ class HttpResponse {
     }
 
     public function getValue($key) {
-        return $this->values[$key];
+        return isset($this->values[$key]) ? $this->values[$key] : NULL;
     }
 
 }
