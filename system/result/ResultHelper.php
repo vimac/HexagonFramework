@@ -4,6 +4,7 @@ namespace Hexagon\system\result;
 
 use Hexagon\Framework;
 use Hexagon\system\http\HttpRequest;
+use Hexagon\system\http\HttpResponse;
 
 trait ResultHelper {
 
@@ -180,7 +181,9 @@ trait ResultHelper {
      * @return Result
      */
     protected static function _redirect($uri, $code = 302) {
+        HttpResponse::getCurrentResponse()->setResponseCode($code);
         header('Location: ' . $uri, TRUE, $code);
+        
         return self::_genNoneResult();
     }
 
