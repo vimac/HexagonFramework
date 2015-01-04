@@ -26,4 +26,12 @@ abstract class Controller {
         $this->response = $res;
     }
 
+    public function isXhr() {
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
 }
