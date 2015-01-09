@@ -11,6 +11,8 @@ use Hexagon\Context;
  */
 class FileLogAppender implements ILogAppender {
 
+    use ExceptionTrace;
+
     private $f;
 
     public function __construct($filename) {
@@ -35,7 +37,7 @@ class FileLogAppender implements ILogAppender {
         @flock($this->f, LOCK_EX);
         @fwrite($this->f, date('[Y-m-d H:i:s] ') . $msg . PHP_EOL);
         if (isset($ex)) {
-            @fwrite($this->f, $ex->getTraceAsString(). PHP_EOL);
+            @fwrite($this->f, $this->_traceException($ex) . PHP_EOL);
         }
         @flock($this->f, LOCK_UN);
     }
@@ -46,4 +48,5 @@ class FileLogAppender implements ILogAppender {
     public function __destruct() {
         @fclose($this->f);
     }
+
 }

@@ -26,12 +26,12 @@ abstract class Controller {
         $this->response = $res;
     }
 
-    public function isXhr() {
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            return TRUE;
-        } else {
-            return FALSE;
-        }
-    }
+    /**
+     * should never add a method here with public access
+     * because the public method here will be accessed by web request
+     * use protected with "_" prefix instead, for example:
+     *
+     * public function _doSomething(){}
+     */
 
 }
