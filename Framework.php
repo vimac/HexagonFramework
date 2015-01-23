@@ -57,7 +57,8 @@ final class Context {
         $clsNS = explode('\\', $cls);
         $base = array_shift($clsNS);
         $name = implode(DIRECTORY_SEPARATOR, $clsNS);
-        @$path = self::$nsPaths[$base];
+        $path = array_key_exists($base, self::$nsPaths) ? self::$nsPaths[$base] : NULL;
+        
         if (!empty($path)) {
             $clsFile = $path . DIRECTORY_SEPARATOR . $name . '.php';
 
