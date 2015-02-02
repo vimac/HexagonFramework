@@ -23,6 +23,8 @@ class DefaultExceptionHandler extends ExceptionHandler {
         $file = isset($trace[0]['file']) ? $trace[0]['file'] : 'internal';
         $line = isset($trace[0]['line']) ? $trace[0]['line'] : 1;
 
+
+        self::_logErr($ex->getMessage(), $ex);
         return $this->_genHTMLResult($this->msg($ex->getMessage(), $file, $line, $trace, $ex->getCode()));
     }
 
@@ -31,6 +33,7 @@ class DefaultExceptionHandler extends ExceptionHandler {
             ob_end_clean();
         }
 
+        self::_logErr($message);
         return $this->_genHTMLResult($this->msg($message, $file, $line, [], $error));
     }
 
@@ -63,7 +66,7 @@ class DefaultExceptionHandler extends ExceptionHandler {
 
         $file = str_replace(Context::$appBasePath, '', $file);
         if (HEXAGON_CLI_MODE) {
-            fwrite(STDOUT, date('[Y-m-d H:i:s] ') . $message . '(' . $file . ':' . $line . ')' . PHP_EOL);
+            fwrite(STDERR, date('[Y-m-d H:i:s] ') . $message . '(' . $file . ':' . $line . ')' . PHP_EOL);
         } else {
             $tpl = function ($_path, $data) {
                 ob_start();

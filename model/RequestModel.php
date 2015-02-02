@@ -33,7 +33,7 @@ abstract class RequestModel extends Model {
 
     /**
      * Get requested method name
-     * @return stirng
+     * @return string
      */
     public function getMethod() {
         return $this->_method;
