@@ -242,4 +242,14 @@ trait ResultHelper {
         return new Result(Result::TYPE_HTML, $html, NULL, $contentType, $callback);
     }
 
+
+    /**
+     * this function allow you to control view templates dir
+     * it should be a directory contains 'screen' and 'layout' directories
+     *
+     * @param string $dir default value: /app/view
+     */
+    protected static function _setPageRoot($dir = DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view') {
+        Processor::getInstance()->setPageRoot($dir);
+    }
 }
