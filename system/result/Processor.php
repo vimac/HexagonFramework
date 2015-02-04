@@ -30,8 +30,12 @@ class Processor {
     }
 
     protected function __construct() {
-        $this->layoutRoot = Context::$appBasePath . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . 'layout';
-        $this->screenRoot = Context::$appBasePath . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . 'screen';
+        $this->setPageRoot();
+    }
+
+    public function setPageRoot($dir = '/app/view') {
+        $this->layoutRoot = Context::$appBasePath . $dir . DIRECTORY_SEPARATOR . 'layout';
+        $this->screenRoot = Context::$appBasePath . $dir . DIRECTORY_SEPARATOR . 'screen';
     }
 
     protected function processPAGE(Result $result) {
