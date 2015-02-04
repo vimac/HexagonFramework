@@ -33,7 +33,7 @@ class Processor {
         $this->setPageRoot();
     }
 
-    public function setPageRoot($dir = DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view') {
+    public function setPageRoot($dir = '/app/view') {
         $this->layoutRoot = Context::$appBasePath . $dir . DIRECTORY_SEPARATOR . 'layout';
         $this->screenRoot = Context::$appBasePath . $dir . DIRECTORY_SEPARATOR . 'screen';
     }

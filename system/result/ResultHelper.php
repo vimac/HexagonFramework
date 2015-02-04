@@ -249,7 +249,7 @@ trait ResultHelper {
      *
      * @param string $dir default value: /app/view
      */
-    protected static function _setPageRoot($dir = DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view') {
+    protected static function _setPageRoot($dir = '/app/view') {
         Processor::getInstance()->setPageRoot($dir);
     }
 }
