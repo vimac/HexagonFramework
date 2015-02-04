@@ -323,11 +323,10 @@ final class Framework {
     }
 
     private function __construct() {
-        // do nothing
+        register_shutdown_function(function() {
+            Context::$eventDispatcher->dispatch('HF::onExit');
+            @self::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(TRUE) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs');
+        });
     }
 
-    public function __destruct() {
-        Context::$eventDispatcher->dispatch('HF::onExit');
-        @self::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(TRUE) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs');
-    }
 }
