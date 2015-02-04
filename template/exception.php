@@ -28,7 +28,6 @@
 
         ul {
             list-style: none;
-            color: #fff;
         }
 
         li {
