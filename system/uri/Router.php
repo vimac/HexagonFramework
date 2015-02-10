@@ -30,14 +30,24 @@ class Router {
 
     private function cleanURI($uri) {
         $queryString = $_SERVER['QUERY_STRING'];
+
         $queryStringLen = strlen($queryString);
         if ($queryStringLen > 0) {
             $uri = substr($uri, 0, -$queryStringLen - 1);
         }
 
-        $scriptName = Context::$appEntryName;
-        $scriptNameLen = strlen($scriptName);
-        if (substr($uri, 1, $scriptNameLen) === $scriptName) {
+        $scriptName = $_SERVER['SCRIPT_NAME'];
+        $scriptDir = dirname($scriptName);
+        if (!empty($scriptDir) and ($scriptDir != '.' or $scriptName != '/')) {
+            $stripLen = strlen($scriptDir);
+            if (substr($uri, 0, $stripLen) === $scriptDir) {
+                $uri = substr($uri, $stripLen);
+            }
+        }
+
+        $entryName = Context::$appEntryName;
+        $scriptNameLen = strlen($entryName);
+        if (substr($uri, 1, $scriptNameLen) === $entryName) {
             $uri = substr($uri, $scriptNameLen + 1);
         }
 

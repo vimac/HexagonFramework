@@ -290,10 +290,9 @@ final class Framework {
             ob_flush();
         }
 
-        return $this;
     }
 
-    public function stop($code = 0, $msg = '', $func = NULL) {
+    public function stop($code = 0, $msg = '') {
         Context::$eventDispatcher->dispatch('HF::onStop');
         if (!empty($msg)) {
             self::_logInfo('End the response. msg: ' . $msg);
@@ -304,7 +303,7 @@ final class Framework {
     }
 
     /**
-     * Get application enviroment
+     * Get application environment
      *
      * @return mixed "dev", "production", "test", "local" or any user defined value, or false when no set
      */
@@ -323,9 +322,11 @@ final class Framework {
     }
 
     private function __construct() {
-        register_shutdown_function(function() {
+        $fw = $this;
+        register_shutdown_function(function() use ($fw) {
             Context::$eventDispatcher->dispatch('HF::onExit');
-            @self::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(TRUE) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs');
+            $fw::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(TRUE) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs');
+            unset($fw);
         });
     }
 

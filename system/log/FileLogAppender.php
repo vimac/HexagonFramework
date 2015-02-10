@@ -42,11 +42,4 @@ class FileLogAppender implements ILogAppender {
         @flock($this->f, LOCK_UN);
     }
 
-    /**
-     * destruct
-     */
-    public function __destruct() {
-        @fclose($this->f);
-    }
-
 }

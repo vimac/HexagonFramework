@@ -16,7 +16,7 @@ class LogAppender {
      * Factory method
      *
      * @param string $appender Appender name
-     * @param array $param Appender construct paramerters
+     * @param array $param Appender construct parameters
      * @return ILogAppender
      */
     public static function getInstance($appender, $param) {
