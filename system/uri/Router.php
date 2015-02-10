@@ -38,7 +38,7 @@ class Router {
 
         $scriptName = $_SERVER['SCRIPT_NAME'];
         $scriptDir = dirname($scriptName);
-        if (!empty($scriptDir) and ($scriptDir != '.' or $scriptName != '/')) {
+        if (!empty($scriptDir) and $scriptDir != '.' and $scriptDir != '/') {
             $stripLen = strlen($scriptDir);
             if (substr($uri, 0, $stripLen) === $scriptDir) {
                 $uri = substr($uri, $stripLen);
