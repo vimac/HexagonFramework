@@ -321,13 +321,5 @@ final class Framework {
         return $mode;
     }
 
-    private function __construct() {
-        $fw = $this;
-        register_shutdown_function(function() use ($fw) {
-            Context::$eventDispatcher->dispatch('HF::onExit');
-            $fw::_logDebug('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(TRUE) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs');
-            unset($fw);
-        });
-    }
 
 }
